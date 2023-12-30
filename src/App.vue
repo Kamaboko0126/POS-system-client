@@ -1,26 +1,76 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <header-item></header-item>
+  <div class="content">
+    <router-view />
+    <menu-item :class="{ 'shadow': isShowMenu }"></menu-item>
+  </div>
+  <footer-item></footer-item>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
+import HeaderItem from "./components/HeaderItem.vue";
+import FooterItem from "./components/FooterItem.vue";
+import MenuItem from "./components/MenuItem.vue";
+import { ref, provide } from "vue";
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    HelloWorld
-  }
-}
+    HeaderItem,
+    FooterItem,
+    MenuItem,
+  },
+  setup() {
+    const isShowMenu = ref(false);
+
+    const changeMenuWidth = () => {
+      console.log("click");
+      if (!isShowMenu.value) {
+        isShowMenu.value = true;
+        document.documentElement.style.setProperty("--menu-width", "300px");
+      } else {
+        isShowMenu.value = false;
+        document.documentElement.style.setProperty("--menu-width", "0px");
+      }
+    };
+
+    provide("changeMenuWidth", changeMenuWidth);
+
+    return {
+      isShowMenu,
+    };
+  },
+};
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+:root {
+  --header-height: 50px;
+  --menu-width: 0px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+section {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.content {
+  width: 100%;
+  height: calc(100vh - var(--header-height));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shadow{
+  box-shadow: -2px 3px 5px 0 rgba(0, 0, 0, 0.2);
 }
 </style>
