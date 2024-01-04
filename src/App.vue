@@ -38,7 +38,6 @@ export default {
 <style>
 :root {
   --header-height: 50px;
-  --menu-width: 0px;
   --main-color:#491f0c;
   --second-color:#ffe9df;
 }
@@ -50,18 +49,14 @@ export default {
 }
 
 section {
-  width: calc(100% - var(--menu-width));
-  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .content {
-  width: 100%;
-  height: calc(100vh - var(--header-height));
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
 }
 

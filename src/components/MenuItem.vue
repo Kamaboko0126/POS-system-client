@@ -21,6 +21,10 @@ export default {
   setup() {
     const menuItems = ref([
       {
+        name:"點餐頁",
+        path:"/order"
+      },
+      {
         name: "編輯菜單",
         path: "/editmenu",
       },

@@ -2,6 +2,7 @@
   <form @submit.prevent="send">
     <div class="input-content">
       <h1>管理者登入</h1>
+      <p class="warningText">{{ warningText }}</p>
       <input
         type="text"
         name="account"
@@ -16,7 +17,7 @@
         placeholder="Password"
       />
       <div class="button-content">
-        <button type="submit">登入</button>
+        <button type="submit" :disabled="isProcessing">登入</button>
       </div>
     </div>
   </form>
@@ -31,20 +32,46 @@ export default {
   setup() {
     const inputAccount = ref("");
     const inputPassword = ref("");
+    const warningText = ref("");
+    const isProcessing = ref(false);
+
+    const statusCheck = () => {
+      console.log("statusCheck");
+      if (inputAccount.value == "") {
+        warningText.value = "*請輸入帳號";
+          isProcessing.value = false;
+        return;
+      } else if (inputPassword.value == "") {
+        warningText.value = "*請輸入密碼";
+          isProcessing.value = false;
+        return;
+      } else {
+        warningText.value = "";
+      }
+    };
+
     const send = async () => {
+      isProcessing.value = true;
+      statusCheck();
+      if (warningText.value != "") return;
       try {
         const response = await axios.post("http://127.0.0.1:10000/login", {
           Account: inputAccount.value,
           Password: inputPassword.value,
         });
         if (response.data.message === "success") {
-          alert("登入成功");
+          console.log("登入成功");
+          warningText.value = "登入成功";
           sessionStorage.setItem("isLogin", true);
-          window.location.href = "/";
+          setTimeout(() => {
+            window.location.href = "/oder";
+          }, 1000);
         } else {
-          alert("登入失敗");
+          console.log("登入失敗");
+          isProcessing.value = false;
         }
       } catch (error) {
+        isProcessing.value = false;
         console.error(error);
       }
     };
@@ -53,6 +80,8 @@ export default {
       send,
       inputAccount,
       inputPassword,
+      warningText,
+      isProcessing
     };
   },
 };
@@ -66,6 +95,10 @@ form {
   align-items: center;
   justify-content: center;
   flex-direction: column;
+}
+
+.warningText {
+  color: rgb(156, 24, 24);
 }
 
 .input-content {
@@ -117,5 +150,11 @@ button:hover {
 button:active {
   transform: scale(0.98);
   transition: transform 0.1s ease;
+}
+
+button:disabled {
+  background-color: #bdc3c7;
+  color: #7f8c8d;
+  cursor: not-allowed;
 }
 </style>

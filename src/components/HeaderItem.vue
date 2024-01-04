@@ -26,19 +26,21 @@ export default {
   setup() {
     const openMenu = inject("openMenu");
     const route = useRoute();
-    const isLogin = ref(true);
+    const isLogin = ref(JSON.parse(sessionStorage.getItem("isLogin")));
 
-    console.log(isLogin.value);
+    const updateIcon = () => {
+      isLogin.value = JSON.parse(sessionStorage.getItem("isLogin"));
+    };
 
     onMounted(() => {
-      isLogin.value = sessionStorage.getItem("isLogin");
-      console.log(sessionStorage.getItem("isLogin"));
+      updateIcon();
     });
 
     return {
       openMenu,
       route,
       isLogin,
+      updateIcon,
     };
   },
 };
