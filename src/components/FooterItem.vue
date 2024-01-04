@@ -1,12 +1,22 @@
 <template>
-    <div></div>
+  <div>是否登入：{{ isLogin }}</div>
 </template>
 
 <script>
-    export default {
-        name: 'FooterItem',
-        components: {
+import { onMounted, ref } from "vue";
 
-        }
-    }
+export default {
+  name: "FooterItem",
+  components: {},
+  setup() {
+    const isLogin = ref(false);
+    onMounted(() => {
+      console.log(sessionStorage.getItem("isLogin"));
+      isLogin.value = sessionStorage.getItem("isLogin");
+    });
+    return {
+        isLogin
+    };
+  },
+};
 </script>

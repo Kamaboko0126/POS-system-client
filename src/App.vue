@@ -2,7 +2,7 @@
   <header-item></header-item>
   <div class="content">
     <router-view />
-    <menu-item :class="{ 'shadow': isShowMenu }"></menu-item>
+    <menu-item></menu-item>
   </div>
   <footer-item></footer-item>
 </template>
@@ -20,23 +20,16 @@ export default {
     MenuItem,
   },
   setup() {
-    const isShowMenu = ref(false);
-
-    const changeMenuWidth = () => {
-      console.log("click");
-      if (!isShowMenu.value) {
-        isShowMenu.value = true;
-        document.documentElement.style.setProperty("--menu-width", "300px");
-      } else {
-        isShowMenu.value = false;
-        document.documentElement.style.setProperty("--menu-width", "0px");
-      }
+    const isMenuShow = ref(false);
+    const openMenu = () => {
+      isMenuShow.value = !isMenuShow.value;
     };
 
-    provide("changeMenuWidth", changeMenuWidth);
+    provide("openMenu", openMenu);
+    provide("isMenuShow", isMenuShow);
 
     return {
-      isShowMenu,
+      isMenuShow,
     };
   },
 };
@@ -46,6 +39,8 @@ export default {
 :root {
   --header-height: 50px;
   --menu-width: 0px;
+  --main-color:#491f0c;
+  --second-color:#ffe9df;
 }
 
 * {
@@ -55,7 +50,7 @@ export default {
 }
 
 section {
-  width: 100%;
+  width: calc(100% - var(--menu-width));
   height: 100%;
   display: flex;
   justify-content: center;
@@ -72,5 +67,10 @@ section {
 
 .shadow{
   box-shadow: -2px 3px 5px 0 rgba(0, 0, 0, 0.2);
+}
+
+a{
+  text-decoration: none;
+  color: black;
 }
 </style>

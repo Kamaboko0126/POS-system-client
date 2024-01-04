@@ -1,33 +1,44 @@
 <template>
   <div class="header-body">
-    <div class="left">美食棧</div>
-    <div class="right">
-      <div class="login" v-if="!isLogin">
-        <i class="material-icons">person</i>
-        <p>登入</p>
-      </div>
+    <div class="left">
+      <router-link to="/"> 美食棧 </router-link>
+    </div>
+    <div class="right" v-if="route.name !== 'login'">
+      <router-link to="/login" v-if="!isLogin">
+        <div class="login">
+          <i class="material-icons">person</i>
+          <p>登入</p>
+        </div>
+      </router-link>
       <div class="menu" v-if="isLogin">
-        <i class="material-icons" @click="clickMenuBtn">menu</i>
+        <i class="material-icons" @click="openMenu">menu</i>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { inject, ref } from "vue";
+import { inject, onMounted, ref } from "vue";
+import { useRoute } from "vue-router";
 export default {
   name: "HeaderItem",
   components: {},
   setup() {
+    const openMenu = inject("openMenu");
+    const route = useRoute();
     const isLogin = ref(true);
-    const changeMenuWidth = inject("changeMenuWidth");
-    const clickMenuBtn = () => {
-      changeMenuWidth();
-    };
-    
+
+    console.log(isLogin.value);
+
+    onMounted(() => {
+      isLogin.value = sessionStorage.getItem("isLogin");
+      console.log(sessionStorage.getItem("isLogin"));
+    });
+
     return {
+      openMenu,
+      route,
       isLogin,
-      clickMenuBtn,
     };
   },
 };
@@ -51,6 +62,10 @@ export default {
   align-items: center;
   justify-content: center;
 }
+
+.left a {
+  color: var(--main-color);
+}
 .right {
   display: flex;
   align-items: center;
@@ -66,7 +81,7 @@ export default {
 
 .right i {
   font-size: 30px;
-  color: #000;
+  color: var(--main-color);
   cursor: pointer;
 }
 

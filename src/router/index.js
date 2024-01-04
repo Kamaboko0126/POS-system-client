@@ -1,6 +1,4 @@
 import { createRouter, createWebHistory } from "vue-router";
-import HomePage from "@/components/HomePage.vue";
-
 
 const router = createRouter({
   history: createWebHistory(),
@@ -8,12 +6,32 @@ const router = createRouter({
     {
       path: "/",
       name: "home",
-      component: HomePage,
+      component: () => import("@/components/HomePage.vue"),
     },
     {
       path: "/login",
       name: "login",
       component: () => import("@/components/LoginPage.vue"),
+    },
+    {
+      path: "/editadmin",
+      name: "editadmin",
+      component: () => import("@/components/EditAdmin.vue"),
+    },
+    {
+      path: "/editmenu",
+      name: "editmenu",
+      component: () => import("@/components/EditMenu.vue"),
+    },
+    {
+      path: "/logout",
+      name: "logout",
+      component: () => import("@/components/LogoutPage.vue"),
+    },
+    {
+      path: "/revenue",
+      name: "revenue",
+      component: () => import("@/components/RevenuePage.vue"),
     },
   ],
 });
