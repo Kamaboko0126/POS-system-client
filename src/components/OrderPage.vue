@@ -15,16 +15,19 @@
         </div>
       </div>
     </div>
-    <h1 v-if="isLogin == 'false'">請先登入</h1>
+    <LoginCheck />
   </section>
 </template>
 
 <script>
 import { ref } from "vue";
+import LoginCheck from "../components/LoginCheck.vue";
 
 export default {
   name: "OderPage",
-  components: {},
+  components: {
+    LoginCheck,
+  },
   setup() {
     const isLogin = sessionStorage.getItem("isLogin");
     const items = ref([

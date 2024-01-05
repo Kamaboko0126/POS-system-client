@@ -1,5 +1,5 @@
 <template>
-  <div>是否登入：{{ isLogin }}</div>
+  <div>是否登入：{{ isLogin == "true" ? "true" : "false" }}</div>
 </template>
 
 <script>

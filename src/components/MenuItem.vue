@@ -26,7 +26,7 @@ export default {
       },
       {
         name: "編輯菜單",
-        path: "/editmenu",
+        path: "/editmenuclass",
       },
       {
         name: "查看營收",

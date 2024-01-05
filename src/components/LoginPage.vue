@@ -68,9 +68,11 @@ export default {
           }, 1000);
         } else {
           console.log("登入失敗");
+          warningText.value = "登入失敗";
           isProcessing.value = false;
         }
       } catch (error) {
+          warningText.value = "登入失敗";
         isProcessing.value = false;
         console.error(error);
       }

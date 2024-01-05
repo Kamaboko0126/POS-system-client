@@ -1,13 +1,16 @@
 <template>
   <section>
-      <h1 v-if="isLogin == 'false'">請先登入</h1>
+      <LoginCheck />
   </section>
 </template>
 
 <script>
+import LoginCheck from "../components/LoginCheck.vue";
 export default {
   name: "HomePage",
-  components: {},
+  components: {
+    LoginCheck,
+  },
   setup() {
     const isLogin = sessionStorage.getItem("isLogin");
 
