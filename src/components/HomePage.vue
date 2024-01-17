@@ -12,10 +12,9 @@ export default {
     LoginCheck,
   },
   setup() {
-    const isLogin = sessionStorage.getItem("isLogin");
 
     return {
-      isLogin,
+      
     };
   },
 };

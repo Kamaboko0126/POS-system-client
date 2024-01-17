@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import axios from "axios";
 export default {
   name: "LoginPage",
@@ -34,16 +34,17 @@ export default {
     const inputPassword = ref("");
     const warningText = ref("");
     const isProcessing = ref(false);
+    const isLogin = ref(sessionStorage.getItem("isLogin"));
 
     const statusCheck = () => {
       console.log("statusCheck");
       if (inputAccount.value == "") {
         warningText.value = "*請輸入帳號";
-          isProcessing.value = false;
+        isProcessing.value = false;
         return;
       } else if (inputPassword.value == "") {
         warningText.value = "*請輸入密碼";
-          isProcessing.value = false;
+        isProcessing.value = false;
         return;
       } else {
         warningText.value = "";
@@ -64,7 +65,7 @@ export default {
           warningText.value = "登入成功";
           sessionStorage.setItem("isLogin", true);
           setTimeout(() => {
-            window.location.href = "/oder";
+            window.location.href = "/order";
           }, 1000);
         } else {
           console.log("登入失敗");
@@ -72,18 +73,28 @@ export default {
           isProcessing.value = false;
         }
       } catch (error) {
-          warningText.value = "登入失敗";
+        warningText.value = "登入失敗";
         isProcessing.value = false;
         console.error(error);
       }
     };
+
+    onMounted(() => {
+      console.log(isLogin.value);
+      if (isLogin.value == "true") {
+        console.log("已登入");
+        window.location.href = "/order";
+      } else {
+        console.log("未登入");
+      }
+    });
 
     return {
       send,
       inputAccount,
       inputPassword,
       warningText,
-      isProcessing
+      isProcessing,
     };
   },
 };
@@ -92,7 +103,7 @@ export default {
 <style>
 form {
   width: 100%;
-  height: 100%;
+  height: calc(90vh - var(--header-height));
   display: flex;
   align-items: center;
   justify-content: center;
