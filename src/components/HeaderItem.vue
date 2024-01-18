@@ -1,7 +1,7 @@
 <template>
   <div class="header-body">
     <div class="left">
-      <router-link to="/"> 美食棧 </router-link>
+      <router-link :to="login ? '/' : '/order'"> 美食棧 </router-link>
     </div>
     <div class="right" v-if="route.name !== 'login'">
       <router-link to="/login" v-if="!isLogin">

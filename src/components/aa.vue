@@ -204,6 +204,7 @@ h1 {
   font-size: 20px;
   font-weight: bold;
 }
+
 .edit-content {
   display: flex;
   flex-direction: column;

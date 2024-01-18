@@ -26,7 +26,7 @@ export default {
       },
       {
         name: "編輯菜單",
-        path: "/editmenuclass",
+        path: "/editmenu",
       },
       {
         name: "查看營收",
@@ -88,7 +88,7 @@ export default {
   font-size: 20px;
   transition: background-color 0.5s ease;
   color: var(--main-color);
-  font-weight: 500;
+  font-weight: 800;
 }
 
 .menu-item:hover {

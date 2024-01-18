@@ -3,17 +3,22 @@
     <div class="alert-body">
       <p>{{ message }}</p>
       <div class="button-content">
-        <button @click="confirm">確認</button>
-        <button @click="cancel">取消</button>
+        <button @click="confirm" :style="{ margin: checkOnly ? '' : '0px' }">確認</button>
+        <button
+          @click="cancel"
+          v-if="!checkOnly"
+          
+        >
+          取消
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-
 export default {
-  props: ["message", "confirm", "cancel"],
+  props: ["message", "confirm", "cancel", "checkOnly"],
   mounted() {
     this.$refs.alertDiv.focus();
   },
@@ -31,6 +36,7 @@ export default {
   display: flex;
   align-items: flex-start;
   justify-content: center;
+  z-index: 99999;
 }
 
 .alert-body {
@@ -50,8 +56,8 @@ export default {
   font-weight: bold;
 }
 
-.button-content{
-    margin-top: 25px;
+.button-content {
+  margin-top: 25px;
 }
 
 button {

@@ -8,7 +8,15 @@
   <section>
     <div class="horizontal-menu-content">
       <div class="horizontal-menu">
-        <div class="menu-item">請先新增內容</div>
+        <div class="menu-item" @click="isEditingClass = !isEditingClass">
+          +新增
+        </div>
+      </div>
+      <div class="horizontal-menu" v-if="isEditingClass">
+        <div class="menu-item">
+          <input type="text" v-model="inputClass" @keyup.enter="addMenuClass" />
+          <button @click="addMenuClass" :disabled="isProcessing">新增</button>
+        </div>
       </div>
       <div
         class="horizontal-menu"
@@ -26,11 +34,28 @@
       </div>
     </div>
     <div class="card-content">
-      <div class="card" v-if="menuClasses.length == 0">
-        <p>請先新增</p>
-        <p>內容</p>
+      <div
+        class="card"
+        @click="isEditingItem = !isEditingItem"
+        v-if="menuClasses.length !== 0"
+      >
+        <p>+新增</p>
       </div>
-
+      <div class="card" v-if="isEditingItem">
+        <input
+          type="text"
+          v-model="inputName"
+          @keyup.enter="addItem"
+          placeholder="品項"
+        />
+        <input
+          type="text"
+          v-model.number="inputPrice"
+          @keyup.enter="addItem"
+          placeholder="定價"
+        />
+        <button @click="addItem" :disabled="isProcessing">新增</button>
+      </div>
       <div
         class="card"
         v-for="(currentItem, index) in currentItems"
@@ -64,6 +89,7 @@ export default {
     const alertMessage = ref("");
     const confirmAction = ref(() => {});
     const cancelAction = ref(() => {});
+    const checkOnly = ref(false);
 
     const isLogin = sessionStorage.getItem("isLogin");
     const isEditingClass = ref(true);
@@ -101,12 +127,12 @@ export default {
     const addMenuClass = async () => {
       isProcessing.value = true;
       if (inputClass.value == "") {
-        // alert("請輸入類別名稱");
-        isProcessing.value = false;
+        checkAlert('請輸入菜單名稱');
         return;
       }
 
       if (!regex.test(inputClass.value)) {
+        checkAlert('錯誤格式，含非法符號或數字為首');
         // alert("錯誤格式，含非法符號或數字為首");
         isProcessing.value = false;
         return;
@@ -220,9 +246,15 @@ export default {
       }
     };
 
+    //新增品項
     const addItem = async () => {
+      if (inputName.value == "") {
+        isProcessing.value = false;
+        return;
+      }
+
       showAlert.value = true;
-      alertMessage.value = `確定要新增 {inputName} 嗎？`;
+      alertMessage.value = `確定要新增 ${inputName.value} 嗎？`;
       confirmAction.value = async () => {
         console.log("add", currentId.value, inputName.value, inputPrice.value);
         try {
@@ -262,6 +294,18 @@ export default {
       };
     };
 
+    const checkAlert = (text) => {
+      isProcessing.value = true;
+      showAlert.value = true;
+      alertMessage.value = text;
+      checkOnly.value = true;
+      confirmAction.value = () => {
+        showAlert.value = false;
+        checkOnly.value = false;
+        isProcessing.value = false;
+      };
+    };
+
     onMounted(() => {
       store.dispatch("fetchMenuClass").then(() => {
         store.dispatch("fetchMenuItem");
@@ -278,6 +322,7 @@ export default {
       alertMessage,
       confirmAction,
       cancelAction,
+      checkOnly,
       isEditingItem,
       isProcessing,
       inputClass,

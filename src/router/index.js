@@ -24,14 +24,9 @@ const router = createRouter({
       component: () => import("@/components/EditAdmin.vue"),
     },
     {
-      path: "/editmenuclass",
-      name: "editmenuclass",
-      component: () => import("@/components/EditMenuClass.vue"),
-    },
-    {
-      path: "/editmenuitem",
-      name: "editmenuitem",
-      component: () => import("@/components/EditMenuItem.vue"),
+      path: "/editmenu",
+      name: "editmenu",
+      component: () => import("@/components/EditMenu.vue"),
     },
     {
       path: "/logout",
