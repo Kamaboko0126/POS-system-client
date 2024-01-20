@@ -4,15 +4,27 @@
     :message="alertMessage"
     :confirm="confirmAction"
     :cancel="cancelAction"
+    :checkOnly="checkOnly"
   />
   <section>
     <div class="horizontal-menu-content">
-      <div class="horizontal-menu">
-        <div class="menu-item" @click="isEditingClass = !isEditingClass">
-          +新增
+      <div class="class-button-content">
+        <div
+          class="class-button add-subtract"
+          @click="addOrSubtract"
+          :class="{ 'current-mode': isAddOrSubtractClass }"
+        >
+          增 減
+        </div>
+        <div
+          class="class-button edit"
+          @click="editClass"
+          :class="{ 'current-mode': isEditingClass }"
+        >
+          編 輯
         </div>
       </div>
-      <div class="horizontal-menu" v-if="isEditingClass">
+      <div class="horizontal-menu" v-if="isAddOrSubtractClass">
         <div class="menu-item">
           <input type="text" v-model="inputClass" @keyup.enter="addMenuClass" />
           <button @click="addMenuClass" :disabled="isProcessing">新增</button>
@@ -29,7 +41,10 @@
           :class="{ 'current-item': currentId === menuClass.id }"
         >
           {{ menuClass.menu_class }}
-          <i class="material-icons" v-if="isEditingClass">delete_forever</i>
+          <i class="material-icons" v-if="isAddOrSubtractClass"
+            >delete_forever</i
+          >
+          <i class="material-icons" v-if="isEditingClass">edit</i>
         </div>
       </div>
     </div>
@@ -39,7 +54,7 @@
         @click="isEditingItem = !isEditingItem"
         v-if="menuClasses.length !== 0"
       >
-        <p>+新增</p>
+        <p>增減</p>
       </div>
       <div class="card" v-if="isEditingItem">
         <input
@@ -92,8 +107,10 @@ export default {
     const checkOnly = ref(false);
 
     const isLogin = sessionStorage.getItem("isLogin");
-    const isEditingClass = ref(true);
-    const isEditingItem = ref(true);
+    const isAddOrSubtractClass = ref(false);
+    const isEditingClass = ref(false);
+    const isAddOrSubtractItem = ref(false);
+    const isEditingItem = ref(false);
     const isProcessing = ref(false);
     const inputClass = ref("");
     const inputName = ref("");
@@ -123,16 +140,32 @@ export default {
       }
     );
 
+    //增減模式(類別)
+    const addOrSubtract = () => {
+      if (isEditingClass.value) {
+        isEditingClass.value = false;
+      }
+      isAddOrSubtractClass.value = !isAddOrSubtractClass.value;
+    };
+
+    //編輯模式(類別)
+    const editClass = () => {
+      if (isAddOrSubtractClass.value) {
+        isAddOrSubtractClass.value = false;
+      }
+      isEditingClass.value = !isEditingClass.value;
+    };
+
     //新增類別
     const addMenuClass = async () => {
       isProcessing.value = true;
       if (inputClass.value == "") {
-        checkAlert('請輸入菜單名稱');
+        checkAlert("請輸入菜單名稱");
         return;
       }
 
       if (!regex.test(inputClass.value)) {
-        checkAlert('錯誤格式，含非法符號或數字為首');
+        checkAlert("錯誤格式，含非法符號或數字為首");
         // alert("錯誤格式，含非法符號或數字為首");
         isProcessing.value = false;
         return;
@@ -182,7 +215,7 @@ export default {
 
     //點擊類別項目
     const selectClass = (id, name) => {
-      if (isEditingClass.value) {
+      if (isAddOrSubtractClass.value) {
         deleteMenuClass(id, name);
       } else {
         getCurrentItems(id);
@@ -317,13 +350,15 @@ export default {
       isLogin,
       menuClasses,
       allItems,
+      isAddOrSubtractClass,
       isEditingClass,
+      isAddOrSubtractItem,
+      isEditingItem,
       showAlert,
       alertMessage,
       confirmAction,
       cancelAction,
       checkOnly,
-      isEditingItem,
       isProcessing,
       inputClass,
       inputName,
@@ -333,6 +368,8 @@ export default {
       selectClass,
       addMenuClass,
       addItem,
+      addOrSubtract,
+      editClass,
     };
   },
 };
@@ -344,17 +381,47 @@ export default {
   top: 0;
   width: 100%;
   height: 100px;
-  background: #f8d1bf;
   display: flex;
   overflow: auto;
+  background: var(--background-color);
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE 10+ */
+  padding-left: 150px;
 }
 
 .horizontal-menu-content::-webkit-scrollbar {
   /* WebKit */
   width: 0;
   height: 0;
+}
+
+.class-button-content {
+  width: 150px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  position: absolute;
+  left: 0;
+  background: var(--third-color);
+}
+
+.class-button {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 25px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.class-button:hover {
+  background: var(--second-color);
+  color: #fff;
 }
 
 .horizontal-menu {
@@ -379,7 +446,7 @@ export default {
 
 .menu-item i {
   font-size: 35px;
-  color: #a82e19;
+  color: var(--warning-color);
   cursor: pointer;
 }
 
@@ -439,7 +506,7 @@ button {
   border-radius: 5px;
   padding: 0 10px;
   font-size: 28px;
-  background-color: #1284d0;
+  background-color: var(--second-color);
   color: white;
   cursor: pointer;
 }
@@ -467,13 +534,18 @@ button:disabled {
   border: none;
   border-radius: 5px;
   font-size: 24px;
-  background-color: #1284d0;
+  background-color: var(--second-color);
   color: white;
   cursor: pointer;
 }
 
+.current-mode {
+  background: var(--second-color);
+  color: #fff;
+}
+
 .current-item {
-  background: #8d540b;
+  background: var(--second-color);
   color: #fff;
 }
 

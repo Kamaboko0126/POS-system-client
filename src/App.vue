@@ -38,8 +38,11 @@ export default {
 <style>
 :root {
   --header-height: 50px;
-  --main-color:#491f0c;
-  --second-color:#ffe9df;
+  --main-color: #3D3930;
+  --second-color: #59a8d9;
+  --third-color: #D0D8DB;
+  --warning-color: #a82e19;
+  --background-color: #EEF0F4;
 }
 
 * {
@@ -60,11 +63,11 @@ section {
   justify-content: center;
 }
 
-.shadow{
+.shadow {
   box-shadow: -2px 3px 5px 0 rgba(0, 0, 0, 0.2);
 }
 
-a{
+a {
   text-decoration: none;
   color: black;
 }

@@ -21,8 +21,8 @@ export default {
   setup() {
     const menuItems = ref([
       {
-        name:"點餐頁",
-        path:"/order"
+        name: "點餐頁",
+        path: "/order",
       },
       {
         name: "編輯菜單",
@@ -93,5 +93,6 @@ export default {
 
 .menu-item:hover {
   background-color: var(--second-color);
+  color: #fff;
 }
 </style>

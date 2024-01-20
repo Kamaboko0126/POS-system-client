@@ -3,7 +3,7 @@
     <div class="alert-body">
       <p>{{ message }}</p>
       <div class="button-content">
-        <button @click="confirm" :style="{ margin: checkOnly ? '' : '0px' }">確認</button>
+        <button @click="confirm" :style="{ margin: checkOnly ? '0px' : '' }">確認</button>
         <button
           @click="cancel"
           v-if="!checkOnly"

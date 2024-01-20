@@ -8,7 +8,20 @@
   <section>
     <div class="horizontal-menu-content">
       <div class="horizontal-menu">
-        <div class="menu-item">請先新增內容</div>
+        <div
+          class="menu-item"
+          v-if="menuClasses.length == 0"
+          :style="[
+            {
+              background: menuClasses.length == 0 ? 'var(--second-color)' : '',
+            },
+            {
+              color: menuClasses.length == 0 ? '#fff' : '',
+            },
+          ]"
+        >
+          請先新增內容
+        </div>
       </div>
       <div
         class="horizontal-menu"
@@ -17,11 +30,10 @@
       >
         <div
           class="menu-item"
-          @click="selectClass(menuClass.id, menuClass.menu_class)"
+          @click="selectClass(menuClass.id)"
           :class="{ 'current-item': currentId === menuClass.id }"
         >
           {{ menuClass.menu_class }}
-          <i class="material-icons" v-if="isEditingClass">delete_forever</i>
         </div>
       </div>
     </div>
@@ -50,7 +62,6 @@ import { ref, watch, toRaw, onMounted } from "vue";
 import AlertWarning from "./AlertWarning.vue";
 import { useStore } from "vuex";
 import LoginCheck from "../components/LoginCheck.vue";
-import axios from "axios";
 
 export default {
   name: "EditMenu",
@@ -66,15 +77,8 @@ export default {
     const cancelAction = ref(() => {});
 
     const isLogin = sessionStorage.getItem("isLogin");
-    const isEditingClass = ref(true);
-    const isEditingItem = ref(true);
     const isProcessing = ref(false);
-    const inputClass = ref("");
-    const inputName = ref("");
-    const inputPrice = ref("");
     const currentId = ref("");
-
-    const regex = /^[a-zA-Z\u4e00-\u9fa5][a-zA-Z0-9\u4e00-\u9fa5]*$/;
 
     // 使用 ref 來創建一個響應式變量
     const menuClasses = ref(store.state.menuClasses);
@@ -97,109 +101,9 @@ export default {
       }
     );
 
-    //新增類別
-    const addMenuClass = async () => {
-      isProcessing.value = true;
-      if (inputClass.value == "") {
-        // alert("請輸入類別名稱");
-        isProcessing.value = false;
-        return;
-      }
-
-      if (!regex.test(inputClass.value)) {
-        // alert("錯誤格式，含非法符號或數字為首");
-        isProcessing.value = false;
-        return;
-      }
-
-      showAlert.value = true;
-      alertMessage.value = `確定要新增 ${inputClass.value} 嗎？`;
-      confirmAction.value = async () => {
-        try {
-          const response = await axios.post(
-            "http://127.0.0.1:10000/addmenuclass",
-            {
-              menu_class: inputClass.value,
-              id: "t" + Date.now().toString(),
-            },
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          if (response.data.message === "success") {
-            // console.log("新增成功");
-            store.dispatch("fetchMenuClass").then(() => {
-              store.dispatch("fetchMenuItem");
-              getCurrentItems("refresh");
-              showAlert.value = false;
-              alertMessage.value = "";
-            });
-            isEditingClass.value = false;
-            isProcessing.value = false;
-          } else if (response.data.message === "already exists") {
-            // console.log("名稱不能相同");
-            isProcessing.value = false;
-          }
-          inputClass.value = "";
-        } catch (error) {
-          isProcessing.value = false;
-          console.error(error);
-        }
-      };
-      cancelAction.value = () => {
-        isProcessing.value = false;
-        showAlert.value = false;
-      };
-    };
-
     //點擊類別項目
-    const selectClass = (id, name) => {
-      if (isEditingClass.value) {
-        deleteMenuClass(id, name);
-      } else {
-        getCurrentItems(id);
-      }
-    };
-
-    //刪除類別
-    const deleteMenuClass = async (id, name) => {
-      showAlert.value = true;
-      alertMessage.value = `確定要刪除 ${name} 嗎？`;
-      confirmAction.value = async () => {
-        try {
-          const response = await axios.post(
-            "http://127.0.0.1:10000/delmenuclass",
-            {
-              id: id,
-            },
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          if (response.data.message === "success") {
-            isProcessing.value = false;
-            store.dispatch("fetchMenuClass").then(() => {
-              store.dispatch("fetchMenuItem");
-              getCurrentItems("refresh");
-              showAlert.value = false;
-              alertMessage.value = "";
-            });
-            isEditingClass.value = false;
-          }
-        } catch (error) {
-          console.error(error);
-          isProcessing.value = false;
-          // console.log("刪除失敗");
-        }
-      };
-      cancelAction.value = () => {
-        isProcessing.value = false;
-        showAlert.value = false;
-      };
+    const selectClass = (id) => {
+      console.log(id);
     };
 
     const getCurrentItems = (id) => {
@@ -207,7 +111,6 @@ export default {
         if (menuClasses.value.length == 0) {
           currentId.value = "";
           currentItems.value = [];
-          isEditingItem.value = false;
           return;
         } else {
           currentId.value = menuClasses.value[0].id;
@@ -218,48 +121,6 @@ export default {
         currentId.value = id;
         currentItems.value = toRaw(allItems.value[id]);
       }
-    };
-
-    const addItem = async () => {
-      showAlert.value = true;
-      alertMessage.value = `確定要新增 {inputName} 嗎？`;
-      confirmAction.value = async () => {
-        console.log("add", currentId.value, inputName.value, inputPrice.value);
-        try {
-          const response = await axios.post(
-            "http://127.0.0.1:10000/additem",
-            {
-              table_id: currentId.value,
-              id: "i" + Date.now().toString(),
-              name: inputName.value,
-              price: inputPrice.value,
-            },
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          if (response.data.message === "success") {
-            console.log("新增成功");
-            store.dispatch("fetchMenuItem").then(() => {
-              getCurrentItems(currentId.value);
-              showAlert.value = false;
-              alertMessage.value = "";
-            });
-            isProcessing.value = false;
-            inputName.value = "";
-            inputPrice.value = "";
-          }
-        } catch (error) {
-          isProcessing.value = false;
-          console.error(error);
-        }
-      };
-      cancelAction.value = () => {
-        isProcessing.value = false;
-        showAlert.value = false;
-      };
     };
 
     onMounted(() => {
@@ -273,21 +134,14 @@ export default {
       isLogin,
       menuClasses,
       allItems,
-      isEditingClass,
       showAlert,
       alertMessage,
       confirmAction,
       cancelAction,
-      isEditingItem,
       isProcessing,
-      inputClass,
-      inputName,
-      inputPrice,
       currentItems,
       currentId,
       selectClass,
-      addMenuClass,
-      addItem,
     };
   },
 };
@@ -299,7 +153,7 @@ export default {
   top: 0;
   width: 100%;
   height: 100px;
-  background: #f8d1bf;
+  background: var(--background-color);
   display: flex;
   overflow: auto;
   scrollbar-width: none; /* Firefox */
@@ -329,12 +183,6 @@ export default {
   font-size: 30px;
   font-weight: bold;
   color: var(--main-color);
-  cursor: pointer;
-}
-
-.menu-item i {
-  font-size: 35px;
-  color: #a82e19;
   cursor: pointer;
 }
 
@@ -394,7 +242,7 @@ button {
   border-radius: 5px;
   padding: 0 10px;
   font-size: 28px;
-  background-color: #1284d0;
+  background-color: var(--second-color);
   color: white;
   cursor: pointer;
 }
@@ -422,17 +270,13 @@ button:disabled {
   border: none;
   border-radius: 5px;
   font-size: 24px;
-  background-color: #1284d0;
+  background-color: var(--second-color);
   color: white;
   cursor: pointer;
 }
 
 .current-item {
-  background: #8d540b;
-  color: #fff;
-}
-
-.current-item i {
+  background: var(--second-color);
   color: #fff;
 }
 </style>
