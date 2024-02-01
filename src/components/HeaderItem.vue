@@ -50,15 +50,15 @@ export default {
 .header-body {
   width: 100%;
   height: var(--header-height);
+  background: var(--header-color);
   padding: 0 50px;
-  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.2);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .left {
-  font-size: 25px;
+  font-size: 30px;
   font-weight: bold;
   display: flex;
   align-items: center;
@@ -66,7 +66,7 @@ export default {
 }
 
 .left a {
-  color: var(--main-color);
+  color: var(--second-font-color);
 }
 .right {
   display: flex;
@@ -83,7 +83,7 @@ export default {
 
 .right i {
   font-size: 30px;
-  color: var(--main-color);
+  color: var(--second-font-color);
   cursor: pointer;
 }
 

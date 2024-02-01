@@ -112,6 +112,7 @@ form {
 
 .warningText {
   color: rgb(156, 24, 24);
+  font-weight: bold;
 }
 
 .input-content {

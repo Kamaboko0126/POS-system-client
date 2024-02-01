@@ -5,19 +5,24 @@ export default createStore({
   state: {
     menuClasses: [],
     allItems: [],
+    itemRemarks: [],
   },
   mutations: {
-    setMenuClass(state, menuClasses) {
+    getMenuClass(state, menuClasses) {
       state.menuClasses = menuClasses;
     },
-    setMenuItem(state, allItems) {
+    getMenuItem(state, allItems) {
       state.allItems = allItems;
+    },
+    getItemRemarks(state, itemRemarks) {
+      state.itemRemarks = itemRemarks;
     },
   },
   actions: {
     async fetchMenuClass({ commit }) {
       const response = await axios.get("http://127.0.0.1:10000/getmenuclass");
-      commit("setMenuClass", response.data.MenuClasses);
+      const menuClasses = response.data ? response.data.MenuClasses || [] : []; // 如果 response.data 是 null 或 MenuClasses 是 null，則設定為空陣列
+      commit("getMenuClass", menuClasses);
     },
     async fetchMenuItem({ state, commit }) {
       const allItems = {};
@@ -26,9 +31,12 @@ export default createStore({
           `http://127.0.0.1:10000/getitems/${menuClass.id}`
         );
         allItems[menuClass.id] = response.data;
-        
       }
-      commit("setMenuItem", allItems);
+      commit("getMenuItem", allItems);
+    },
+    async fetchItemRemarks({ commit }) {
+      const response = await axios.get("http://127.0.0.1:10000/getitemremarks");
+      commit("getItemRemarks", response.data);
     },
   },
 });

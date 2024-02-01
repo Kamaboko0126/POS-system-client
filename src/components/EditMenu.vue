@@ -7,7 +7,8 @@
     :checkOnly="checkOnly"
   />
   <section>
-    <div class="horizontal-menu-content">
+    <horizontal-menu></horizontal-menu>
+    <!-- <div class="horizontal-menu-content">
       <div class="class-button-content">
         <div
           class="class-button add-subtract"
@@ -47,8 +48,9 @@
           <i class="material-icons" v-if="isEditingClass">edit</i>
         </div>
       </div>
-    </div>
-    <div class="card-content">
+    </div> -->
+    <card-modal></card-modal>
+    <!-- <div class="card-content">
       <div
         class="card"
         @click="isEditingItem = !isEditingItem"
@@ -80,7 +82,7 @@
         <p>{{ currentItem.name }}</p>
         <p>{{ currentItem.price }}</p>
       </div>
-    </div>
+    </div> -->
     <LoginCheck />
   </section>
 </template>
@@ -91,12 +93,16 @@ import AlertWarning from "./AlertWarning.vue";
 import { useStore } from "vuex";
 import LoginCheck from "../components/LoginCheck.vue";
 import axios from "axios";
+import HorizontalMenu from "./HorizontalMenu.vue";
+import CardModal from './CardModal.vue';
 
 export default {
   name: "EditMenu",
   components: {
     LoginCheck,
     AlertWarning,
+    HorizontalMenu,
+    CardModal,
   },
   setup() {
     const store = useStore();
@@ -117,7 +123,7 @@ export default {
     const inputPrice = ref("");
     const currentId = ref("");
 
-    const regex = /^[a-zA-Z\u4e00-\u9fa5][a-zA-Z0-9\u4e00-\u9fa5]*$/;
+    // const regex = /^[a-zA-Z\u4e00-\u9fa5][a-zA-Z0-9\u4e00-\u9fa5]*$/;
 
     // 使用 ref 來創建一個響應式變量
     const menuClasses = ref(store.state.menuClasses);
@@ -157,109 +163,109 @@ export default {
     };
 
     //新增類別
-    const addMenuClass = async () => {
-      isProcessing.value = true;
-      if (inputClass.value == "") {
-        checkAlert("請輸入菜單名稱");
-        return;
-      }
+    // const addMenuClass = async () => {
+    //   isProcessing.value = true;
+    //   if (inputClass.value == "") {
+    //     checkAlert("請輸入菜單名稱");
+    //     return;
+    //   }
 
-      if (!regex.test(inputClass.value)) {
-        checkAlert("錯誤格式，含非法符號或數字為首");
-        // alert("錯誤格式，含非法符號或數字為首");
-        isProcessing.value = false;
-        return;
-      }
+    //   if (!regex.test(inputClass.value)) {
+    //     checkAlert("錯誤格式，含非法符號或數字為首");
+    //     // alert("錯誤格式，含非法符號或數字為首");
+    //     isProcessing.value = false;
+    //     return;
+    //   }
 
-      showAlert.value = true;
-      alertMessage.value = `確定要新增 ${inputClass.value} 嗎？`;
-      confirmAction.value = async () => {
-        try {
-          const response = await axios.post(
-            "http://127.0.0.1:10000/addmenuclass",
-            {
-              menu_class: inputClass.value,
-              id: "t" + Date.now().toString(),
-            },
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          if (response.data.message === "success") {
-            // console.log("新增成功");
-            store.dispatch("fetchMenuClass").then(() => {
-              store.dispatch("fetchMenuItem");
-              getCurrentItems("refresh");
-              showAlert.value = false;
-              alertMessage.value = "";
-            });
-            isEditingClass.value = false;
-            isProcessing.value = false;
-          } else if (response.data.message === "already exists") {
-            // console.log("名稱不能相同");
-            isProcessing.value = false;
-          }
-          inputClass.value = "";
-        } catch (error) {
-          isProcessing.value = false;
-          console.error(error);
-        }
-      };
-      cancelAction.value = () => {
-        isProcessing.value = false;
-        showAlert.value = false;
-      };
-    };
+    //   showAlert.value = true;
+    //   alertMessage.value = `確定要新增 ${inputClass.value} 嗎？`;
+    //   confirmAction.value = async () => {
+    //     try {
+    //       const response = await axios.post(
+    //         "http://127.0.0.1:10000/addmenuclass",
+    //         {
+    //           menu_class: inputClass.value,
+    //           id: "t" + Date.now().toString(),
+    //         },
+    //         {
+    //           headers: {
+    //             "Content-Type": "application/json",
+    //           },
+    //         }
+    //       );
+    //       if (response.data.message === "success") {
+    //         // console.log("新增成功");
+    //         store.dispatch("fetchMenuClass").then(() => {
+    //           store.dispatch("fetchMenuItem");
+    //           getCurrentItems("refresh");
+    //           showAlert.value = false;
+    //           alertMessage.value = "";
+    //         });
+    //         isEditingClass.value = false;
+    //         isProcessing.value = false;
+    //       } else if (response.data.message === "already exists") {
+    //         // console.log("名稱不能相同");
+    //         isProcessing.value = false;
+    //       }
+    //       inputClass.value = "";
+    //     } catch (error) {
+    //       isProcessing.value = false;
+    //       console.error(error);
+    //     }
+    //   };
+    //   cancelAction.value = () => {
+    //     isProcessing.value = false;
+    //     showAlert.value = false;
+    //   };
+    // };
 
     //點擊類別項目
-    const selectClass = (id, name) => {
-      if (isAddOrSubtractClass.value) {
-        deleteMenuClass(id, name);
-      } else {
+    const selectClass = (id) => {
+      // if (isAddOrSubtractClass.value) {
+        // deleteMenuClass(id, name);
+      // } else {
         getCurrentItems(id);
-      }
+      // }
     };
 
     //刪除類別
-    const deleteMenuClass = async (id, name) => {
-      showAlert.value = true;
-      alertMessage.value = `確定要刪除 ${name} 嗎？`;
-      confirmAction.value = async () => {
-        try {
-          const response = await axios.post(
-            "http://127.0.0.1:10000/delmenuclass",
-            {
-              id: id,
-            },
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          if (response.data.message === "success") {
-            isProcessing.value = false;
-            store.dispatch("fetchMenuClass").then(() => {
-              store.dispatch("fetchMenuItem");
-              getCurrentItems("refresh");
-              showAlert.value = false;
-              alertMessage.value = "";
-            });
-            isEditingClass.value = false;
-          }
-        } catch (error) {
-          console.error(error);
-          isProcessing.value = false;
-          // console.log("刪除失敗");
-        }
-      };
-      cancelAction.value = () => {
-        isProcessing.value = false;
-        showAlert.value = false;
-      };
-    };
+    // const deleteMenuClass = async (id, name) => {
+    //   showAlert.value = true;
+    //   alertMessage.value = `確定要刪除 ${name} 嗎？`;
+    //   confirmAction.value = async () => {
+    //     try {
+    //       const response = await axios.post(
+    //         "http://127.0.0.1:10000/delmenuclass",
+    //         {
+    //           id: id,
+    //         },
+    //         {
+    //           headers: {
+    //             "Content-Type": "application/json",
+    //           },
+    //         }
+    //       );
+    //       if (response.data.message === "success") {
+    //         isProcessing.value = false;
+    //         store.dispatch("fetchMenuClass").then(() => {
+    //           store.dispatch("fetchMenuItem");
+    //           getCurrentItems("refresh");
+    //           showAlert.value = false;
+    //           alertMessage.value = "";
+    //         });
+    //         isEditingClass.value = false;
+    //       }
+    //     } catch (error) {
+    //       console.error(error);
+    //       isProcessing.value = false;
+    //       // console.log("刪除失敗");
+    //     }
+    //   };
+    //   cancelAction.value = () => {
+    //     isProcessing.value = false;
+    //     showAlert.value = false;
+    //   };
+    // };
 
     const getCurrentItems = (id) => {
       if (id === "refresh") {
@@ -327,17 +333,17 @@ export default {
       };
     };
 
-    const checkAlert = (text) => {
-      isProcessing.value = true;
-      showAlert.value = true;
-      alertMessage.value = text;
-      checkOnly.value = true;
-      confirmAction.value = () => {
-        showAlert.value = false;
-        checkOnly.value = false;
-        isProcessing.value = false;
-      };
-    };
+    // const checkAlert = (text) => {
+    //   isProcessing.value = true;
+    //   showAlert.value = true;
+    //   alertMessage.value = text;
+    //   checkOnly.value = true;
+    //   confirmAction.value = () => {
+    //     showAlert.value = false;
+    //     checkOnly.value = false;
+    //     isProcessing.value = false;
+    //   };
+    // };
 
     onMounted(() => {
       store.dispatch("fetchMenuClass").then(() => {
@@ -366,7 +372,7 @@ export default {
       currentItems,
       currentId,
       selectClass,
-      addMenuClass,
+      // addMenuClass,
       addItem,
       addOrSubtract,
       editClass,
@@ -376,7 +382,7 @@ export default {
 </script>
 
 <style scoped>
-.horizontal-menu-content {
+/* .horizontal-menu-content {
   position: sticky;
   top: 0;
   width: 100%;
@@ -384,13 +390,12 @@ export default {
   display: flex;
   overflow: auto;
   background: var(--background-color);
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE 10+ */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   padding-left: 150px;
 }
 
 .horizontal-menu-content::-webkit-scrollbar {
-  /* WebKit */
   width: 0;
   height: 0;
 }
@@ -448,7 +453,7 @@ export default {
   font-size: 35px;
   color: var(--warning-color);
   cursor: pointer;
-}
+} */
 
 section {
   width: 100%;
