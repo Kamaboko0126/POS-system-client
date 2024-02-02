@@ -1,18 +1,3 @@
-<template>
-  <div class="menu-content" :class="{ show: isMenuShow }">
-    <div class="menu-items">
-      <router-link
-        v-for="(item, index) in menuItems"
-        :key="index"
-        :to="item.path"
-        class="menu-item"
-      >
-        {{ item.name }}
-      </router-link>
-    </div>
-  </div>
-</template>
-
 <script>
 import { inject, ref } from "vue";
 export default {
@@ -50,6 +35,21 @@ export default {
   },
 };
 </script>
+
+<template>
+  <div class="menu-content" :class="{ show: isMenuShow }">
+    <div class="menu-items" @click="isMenuShow = false">
+      <router-link
+        v-for="(item, index) in menuItems"
+        :key="index"
+        :to="item.path"
+        class="menu-item"
+      >
+        {{ item.name }}
+      </router-link>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 .menu-content {

@@ -1,7 +1,7 @@
 <template>
   <div class="header-body">
     <div class="left">
-      <router-link :to="login ? '/' : '/order'"> 美食棧 </router-link>
+      <router-link :to="isLogin ? '/order' : '/'"> 美食棧 </router-link>
     </div>
     <div class="right" v-if="route.name !== 'login'">
       <router-link to="/login" v-if="!isLogin">
@@ -92,5 +92,6 @@ export default {
   font-weight: bold;
   margin-left: 5px;
   cursor: pointer;
+  color: var(--second-font-color);
 }
 </style>

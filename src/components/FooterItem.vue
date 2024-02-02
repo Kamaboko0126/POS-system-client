@@ -1,7 +1,3 @@
-<template>
-  <div>是否登入：{{ isLogin == "true" ? "true" : "false" }}</div>
-</template>
-
 <script>
 import { onMounted, ref } from "vue";
 
@@ -11,7 +7,6 @@ export default {
   setup() {
     const isLogin = ref(false);
     onMounted(() => {
-      console.log(sessionStorage.getItem("isLogin"));
       isLogin.value = sessionStorage.getItem("isLogin");
     });
     return {
@@ -20,3 +15,9 @@ export default {
   },
 };
 </script>
+
+<template>
+  <div>是否登入：{{ isLogin == "true" ? "true" : "false" }}</div>
+</template>
+
+<style scoped></style>

@@ -81,7 +81,7 @@ export default {
             },
           }
         );
-        console.log(response)
+        // console.log(response)
         if (response.data.message === "success") {
           console.log("新增成功");
           refresh();
@@ -144,7 +144,7 @@ export default {
       }
     };
 
-    console.log(showAlert.value);
+    // console.log(showAlert.value);
 
     return {
       showAlert,
@@ -184,7 +184,7 @@ export default {
 .body {
   width: 100%;
   height: 100vh;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   z-index: 999;
@@ -198,7 +198,7 @@ export default {
   margin-top: calc(var(--header-height) + 6px);
   padding: 40px 60px;
   background: #fff;
-  border-radius: 10px;
+  border-radius: 5px;
   box-shadow: 0px 8px 10px 3px #41546a53;
   overflow: auto;
   display: flex;

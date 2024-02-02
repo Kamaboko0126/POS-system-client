@@ -1,7 +1,7 @@
 <script>
-import { ref, watch, toRaw, provide } from "vue";
+import { ref, watch, toRaw, provide, inject, onMounted } from "vue";
 import { useStore } from "vuex";
-import MenuAlert from "./menuAlert.vue";
+import MenuAlert from "./MenuAlert.vue";
 import axios from "axios";
 export default {
   components: {
@@ -9,11 +9,19 @@ export default {
   },
   setup() {
     const store = useStore();
-    const isEditing = ref(false);
     const isAdding = ref(false);
     const showAlert = ref(false);
     const name = ref("");
     const id = ref("");
+    const firstClass = ref("");
+    const isEditing = inject("isClassEditing");
+    const isCardEditing = inject("isCardEditing");
+    const allItems = ref(store.state.allItems);
+    const currentId = inject("currentId");
+    const currentItem = inject("currentItem");
+
+    provide("firstClass", firstClass);
+
     provide("showAlert", showAlert);
     provide("isAdding", isAdding);
     provide("name", name);
@@ -33,12 +41,38 @@ export default {
       }
     );
 
+    //監控 allItems的變化
+    watch(
+      () => store.state.allItems,
+      (newVal) => {
+        allItems.value = newVal;
+      }
+    );
+
+    // watch(
+    //   () => currentId.value,
+    //   (newVal, oldVal) => {
+    //     console.log(`currentId changed from ${oldVal} to ${newVal}`);
+    //   }
+    // );
+
+    //點擊編輯
+
+    const editing = () => {
+      if (isEditing.value) {
+        isEditing.value = false;
+      } else {
+        isEditing.value = true;
+        isCardEditing.value = false;
+      }
+    };
+
     //選取類別
     const selectItem = (itemName, itemId) => {
       if (isEditing.value) {
         name.value = itemName;
         id.value = itemId;
-        console.log(name, id);
+        // console.log(name, id);
         showAlert.value = true;
       } else {
         getCurrentItem(itemId);
@@ -53,6 +87,7 @@ export default {
       id.value = "";
     };
 
+    //重新排序
     const handleDragEnd = async () => {
       // 拖放操作結束，你可以在這裡保存新的順序
       const rawMenuClasses = toRaw(menuClasses.value);
@@ -63,7 +98,7 @@ export default {
           id: rawMenuClasses[i].id,
         });
       }
-      console.log(data);
+      // console.log(data);
       const jsonData = JSON.stringify(toRaw(data));
       try {
         const response = await axios.post(
@@ -77,7 +112,7 @@ export default {
             },
           }
         );
-        console.log(response);
+        // console.log(response);
         if (response.data.message === "success") {
           console.log("排序成功");
           refresh();
@@ -87,30 +122,55 @@ export default {
       }
     };
 
+    //更新類別資料
     const refresh = () => {
       store.dispatch("fetchMenuClass").then(() => {
-        console.log("fresh");
+        // console.log("fresh");
+        getCurrentItem("refresh");
       });
     };
 
-    const getCurrentItem = (itemId) => {
-      store.dispatch("fetchCurrentItem", itemId).then(() => {
-        console.log("fetchCurrentItem");
-      });
+    const getCurrentItem = async (id) => {
+      if (id === "refresh") {
+        if (menuClasses.value.length > 0) {
+          store.dispatch("fetchMenuItem").then(() => {
+            currentId.value = menuClasses.value[0].id;
+            currentItem.value = toRaw(allItems.value[menuClasses.value[0].id]);
+            // console.log(currentId.value);
+          })
+          return;
+        } else {
+          currentId.value = "";
+          currentItem.value = [];
+          return;
+        }
+      }
+      currentId.value = id;
+      // console.log("currentId", currentId.value);
+      currentItem.value = toRaw(allItems.value[id]);
     };
 
     provide("refresh", refresh);
+
+    onMounted(() => {
+      store.dispatch("fetchMenuClass").then(() => {
+        store.dispatch("fetchMenuItem");
+        getCurrentItem("refresh");
+      });
+    });
 
     return {
       menuClasses,
       isEditing,
       showAlert,
       name,
+      currentId,
       id,
       refresh,
       selectItem,
       add,
       handleDragEnd,
+      editing,
     };
   },
 };
@@ -123,11 +183,7 @@ export default {
     :class="{ 'hide-scrollbar': !isEditing }"
   >
     <div class="button-content">
-      <div
-        class="edit-btn"
-        @click="isEditing = !isEditing"
-        :class="{ editing: isEditing }"
-      >
+      <div class="edit-btn" @click="editing" :class="{ editing: isEditing }">
         編輯
       </div>
     </div>
@@ -145,9 +201,10 @@ export default {
         <li
           @click="selectItem(menuClass.menu_class, menuClass.id)"
           class="horizontal-menu"
+          :class="{ 'current-item': currentId == menuClass.id }"
         >
-          {{ menuClass.menu_class
-          }}<span class="material-icons" v-if="isEditing">edit</span>
+          {{ menuClass.menu_class }}
+          <span class="material-icons" v-if="isEditing">edit</span>
         </li>
       </template>
     </v-draggable>
@@ -254,11 +311,11 @@ li span,
 .edit-btn:hover,
 .add-btn:hover,
 li:hover {
-  background: #95abb9;
+  background: var(--hover-color);
 }
 
 .current-item {
-  background: var(--second-color);
+  background: var(--hover-color);
   color: #fff;
 }
 

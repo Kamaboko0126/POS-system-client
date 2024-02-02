@@ -1,12 +1,3 @@
-<template>
-  <header-item></header-item>
-  <div class="content">
-    <router-view></router-view>
-    <menu-item></menu-item>
-  </div>
-  <footer-item></footer-item>
-</template>
-
 <script>
 import HeaderItem from "./components/HeaderItem.vue";
 import FooterItem from "./components/FooterItem.vue";
@@ -39,6 +30,16 @@ export default {
 };
 </script>
 
+
+<template>
+  <HeaderItem />
+  <div class="content">
+    <router-view></router-view>
+    <MenuItem />
+  </div>
+  <FooterItem />
+</template>
+
 <style>
 :root {
   --header-height: 65px;
@@ -50,6 +51,7 @@ export default {
   --third-color: #d0d8db;
   --warning-color: #a82e19;
   --background-color: #89a1b1;
+  --hover-color: #95abb9;
 }
 
 * {

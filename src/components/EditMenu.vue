@@ -1,11 +1,4 @@
 <template>
-  <AlertWarning
-    v-if="showAlert"
-    :message="alertMessage"
-    :confirm="confirmAction"
-    :cancel="cancelAction"
-    :checkOnly="checkOnly"
-  />
   <section>
     <horizontal-menu></horizontal-menu>
     <!-- <div class="horizontal-menu-content">
@@ -88,33 +81,31 @@
 </template>
 
 <script>
-import { ref, watch, toRaw, onMounted } from "vue";
-import AlertWarning from "./AlertWarning.vue";
+import { ref, watch, onMounted, provide } from "vue";
 import { useStore } from "vuex";
 import LoginCheck from "../components/LoginCheck.vue";
-import axios from "axios";
+// import axios from "axios";
 import HorizontalMenu from "./HorizontalMenu.vue";
-import CardModal from './CardModal.vue';
+import CardModal from "./CardModal.vue";
 
 export default {
   name: "EditMenu",
   components: {
     LoginCheck,
-    AlertWarning,
     HorizontalMenu,
     CardModal,
   },
   setup() {
     const store = useStore();
-    const showAlert = ref(false);
-    const alertMessage = ref("");
-    const confirmAction = ref(() => {});
-    const cancelAction = ref(() => {});
-    const checkOnly = ref(false);
+    // const showAlert = ref(false);
+    // const alertMessage = ref("");
+    // const confirmAction = ref(() => {});
+    // const cancelAction = ref(() => {});
+    // const checkOnly = ref(false);
 
     const isLogin = sessionStorage.getItem("isLogin");
-    const isAddOrSubtractClass = ref(false);
-    const isEditingClass = ref(false);
+    // const isAddOrSubtractClass = ref(false);
+    // const isEditingClass = ref(false);
     const isAddOrSubtractItem = ref(false);
     const isEditingItem = ref(false);
     const isProcessing = ref(false);
@@ -122,7 +113,17 @@ export default {
     const inputName = ref("");
     const inputPrice = ref("");
     const currentId = ref("");
+    provide("currentId", currentId);
 
+    const isClassEditing = ref(false);
+    provide("isClassEditing", isClassEditing);
+
+    const isCardEditing = ref(false);
+    provide("isCardEditing", isCardEditing);
+
+    const currentItem = ref([]);
+    provide("currentItem", currentItem);
+    // console.log("currentItem", currentItem);
     // const regex = /^[a-zA-Z\u4e00-\u9fa5][a-zA-Z0-9\u4e00-\u9fa5]*$/;
 
     // 使用 ref 來創建一個響應式變量
@@ -131,12 +132,12 @@ export default {
     const currentItems = ref([]);
 
     // 監控 menuClasses 的變化
-    watch(
-      () => store.state.menuClasses,
-      (newVal) => {
-        menuClasses.value = newVal;
-      }
-    );
+    // watch(
+    //   () => store.state.menuClasses,
+    //   (newVal) => {
+    //     menuClasses.value = newVal;
+    //   }
+    // );
 
     // 監控 menuItems 的變化
     watch(
@@ -145,22 +146,23 @@ export default {
         allItems.value = newVal;
       }
     );
+    
 
     //增減模式(類別)
-    const addOrSubtract = () => {
-      if (isEditingClass.value) {
-        isEditingClass.value = false;
-      }
-      isAddOrSubtractClass.value = !isAddOrSubtractClass.value;
-    };
+    // const addOrSubtract = () => {
+    //   if (isEditingClass.value) {
+    //     isEditingClass.value = false;
+    //   }
+    //   isAddOrSubtractClass.value = !isAddOrSubtractClass.value;
+    // };
 
     //編輯模式(類別)
-    const editClass = () => {
-      if (isAddOrSubtractClass.value) {
-        isAddOrSubtractClass.value = false;
-      }
-      isEditingClass.value = !isEditingClass.value;
-    };
+    // const editClass = () => {
+    //   if (isAddOrSubtractClass.value) {
+    //     isAddOrSubtractClass.value = false;
+    //   }
+    //   isEditingClass.value = !isEditingClass.value;
+    // };
 
     //新增類別
     // const addMenuClass = async () => {
@@ -220,13 +222,14 @@ export default {
     // };
 
     //點擊類別項目
-    const selectClass = (id) => {
-      // if (isAddOrSubtractClass.value) {
-        // deleteMenuClass(id, name);
-      // } else {
-        getCurrentItems(id);
-      // }
-    };
+
+    // const selectClass = () => {
+    // if (isAddOrSubtractClass.value) {
+    // deleteMenuClass(id, name);
+    // } else {
+    // getCurrentItems(id);
+    // }
+    // };
 
     //刪除類別
     // const deleteMenuClass = async (id, name) => {
@@ -267,71 +270,71 @@ export default {
     //   };
     // };
 
-    const getCurrentItems = (id) => {
-      if (id === "refresh") {
-        if (menuClasses.value.length == 0) {
-          currentId.value = "";
-          currentItems.value = [];
-          isEditingItem.value = false;
-          return;
-        } else {
-          currentId.value = menuClasses.value[0].id;
-          currentItems.value = toRaw(allItems.value[menuClasses.value[0].id]);
-          return;
-        }
-      } else {
-        currentId.value = id;
-        currentItems.value = toRaw(allItems.value[id]);
-      }
-    };
+    // const getCurrentItems = (id) => {
+    //   if (id === "refresh") {
+    //     if (menuClasses.value.length == 0) {
+    //       currentId.value = "";
+    //       currentItems.value = [];
+    //       isEditingItem.value = false;
+    //       return;
+    //     } else {
+    //       currentId.value = menuClasses.value[0].id;
+    //       currentItems.value = toRaw(allItems.value[menuClasses.value[0].id]);
+    //       return;
+    //     }
+    //   } else {
+    //     currentId.value = id;
+    //     currentItems.value = toRaw(allItems.value[id]);
+    //   }
+    // };
 
     //新增品項
-    const addItem = async () => {
-      if (inputName.value == "") {
-        isProcessing.value = false;
-        return;
-      }
+    // const addItem = async () => {
+    //   if (inputName.value == "") {
+    //     isProcessing.value = false;
+    //     return;
+    //   }
 
-      showAlert.value = true;
-      alertMessage.value = `確定要新增 ${inputName.value} 嗎？`;
-      confirmAction.value = async () => {
-        console.log("add", currentId.value, inputName.value, inputPrice.value);
-        try {
-          const response = await axios.post(
-            "http://127.0.0.1:10000/additem",
-            {
-              table_id: currentId.value,
-              id: "i" + Date.now().toString(),
-              name: inputName.value,
-              price: inputPrice.value,
-            },
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          if (response.data.message === "success") {
-            console.log("新增成功");
-            store.dispatch("fetchMenuItem").then(() => {
-              getCurrentItems(currentId.value);
-              showAlert.value = false;
-              alertMessage.value = "";
-            });
-            isProcessing.value = false;
-            inputName.value = "";
-            inputPrice.value = "";
-          }
-        } catch (error) {
-          isProcessing.value = false;
-          console.error(error);
-        }
-      };
-      cancelAction.value = () => {
-        isProcessing.value = false;
-        showAlert.value = false;
-      };
-    };
+    //   showAlert.value = true;
+    //   alertMessage.value = `確定要新增 ${inputName.value} 嗎？`;
+    //   confirmAction.value = async () => {
+    //     console.log("add", currentId.value, inputName.value, inputPrice.value);
+    //     try {
+    //       const response = await axios.post(
+    //         "http://127.0.0.1:10000/additem",
+    //         {
+    //           table_id: currentId.value,
+    //           id: "i" + Date.now().toString(),
+    //           name: inputName.value,
+    //           price: inputPrice.value,
+    //         },
+    //         {
+    //           headers: {
+    //             "Content-Type": "application/json",
+    //           },
+    //         }
+    //       );
+    //       if (response.data.message === "success") {
+    //         console.log("新增成功");
+    //         store.dispatch("fetchMenuItem").then(() => {
+    //           getCurrentItems(currentId.value);
+    //           showAlert.value = false;
+    //           alertMessage.value = "";
+    //         });
+    //         isProcessing.value = false;
+    //         inputName.value = "";
+    //         inputPrice.value = "";
+    //       }
+    //     } catch (error) {
+    //       isProcessing.value = false;
+    //       console.error(error);
+    //     }
+    //   };
+    //   cancelAction.value = () => {
+    //     isProcessing.value = false;
+    //     showAlert.value = false;
+    //   };
+    // };
 
     // const checkAlert = (text) => {
     //   isProcessing.value = true;
@@ -348,7 +351,7 @@ export default {
     onMounted(() => {
       store.dispatch("fetchMenuClass").then(() => {
         store.dispatch("fetchMenuItem");
-        getCurrentItems("refresh");
+        // getCurrentItems("refresh");
       });
     });
 
@@ -356,26 +359,26 @@ export default {
       isLogin,
       menuClasses,
       allItems,
-      isAddOrSubtractClass,
-      isEditingClass,
+      // isAddOrSubtractClass,
+      // isEditingClass,
       isAddOrSubtractItem,
       isEditingItem,
-      showAlert,
-      alertMessage,
-      confirmAction,
-      cancelAction,
-      checkOnly,
+      // showAlert,
+      // alertMessage,
+      // confirmAction,
+      // cancelAction,
+      // checkOnly,
       isProcessing,
       inputClass,
       inputName,
       inputPrice,
       currentItems,
       currentId,
-      selectClass,
+      // selectClass,
       // addMenuClass,
-      addItem,
-      addOrSubtract,
-      editClass,
+      // addItem,
+      // addOrSubtract,
+      // editClass,
     };
   },
 };
