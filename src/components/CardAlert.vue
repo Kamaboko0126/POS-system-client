@@ -6,58 +6,81 @@ export default {
   setup() {
     const isEditing = inject("isCardEditing");
     const showAlert = inject("showAlert");
-    const currentId = inject("currentId");
+    const table_id = inject("currentId");
     const isProcessing = ref(false);
     const regex = /^[a-zA-Z\u4e00-\u9fa5][a-zA-Z0-9\u4e00-\u9fa5]*$/;
-    const refresh = inject("refresh");
-
+    const itemId = inject("itemId");
+    const itemName = inject("itemName");
+    const itemPrice = inject("itemPrice");
+    const arrayMarker = inject("arrayMarker");
+    const isAdding = inject("isAdding");
+    const isItemFreshing = inject("isItemFreshing");
+    const isAddingMarker = ref(false);
+    const inputMarker = ref("");
+    const inputEditMarker = ref("");
+    const editingMarker = ref("");
+    const itemNum = inject("itemNum");
     watch(
-      () => currentId.value,
+      () => table_id.value,
       (newVal) => {
-        console.log("currentId changed", newVal);
+        console.log("table_id changed", newVal);
       }
     );
 
-    const inputName = ref("");
-    const inputPrice = ref("");
-
-    const del = () => {
-      showAlert.value = false;
-    };
-
+    //點擊確認&修改鍵
     const confirm = () => {
       isProcessing.value = true;
-      console.log("click");
-      if (inputName.value === "" || inputPrice.value === "") {
-        alert("請輸入完整資料");
-        isProcessing.value = false;
-        return;
-      } else {
-        if (!regex.test(inputName.value)) {
-          alert("品項名稱格式錯誤");
-          isProcessing.value = false;
-          return;
-        } else if (inputPrice.value <= 0) {
-          alert("價格不得小於0");
+      // console.log("click");
+      if (isAdding.value) {
+        if (itemName.value === "" || itemPrice.value === "") {
+          alert("請輸入完整資料");
           isProcessing.value = false;
           return;
         } else {
-          addItem();
+          if (!regex.test(itemName.value)) {
+            alert("品項名稱格式錯誤");
+            isProcessing.value = false;
+            return;
+          } else if (itemPrice.value <= 0) {
+            alert("價格不得小於0");
+            isProcessing.value = false;
+            return;
+          } else {
+            addItem();
+          }
+        }
+      } else {
+        console.log("修改");
+        if (itemName.value === "" || itemPrice.value === "") {
+          alert("請輸入完整資料");
+          isProcessing.value = false;
+          return;
+        } else {
+          if (!regex.test(itemName.value)) {
+            alert("品項名稱格式錯誤");
+            isProcessing.value = false;
+            return;
+          } else if (itemPrice.value <= 0) {
+            alert("價格不得小於0");
+            isProcessing.value = false;
+            return;
+          } else {
+            editItem();
+          }
         }
       }
     };
 
-    //新增品項
-    const addItem = async () => {
+    //編輯品項
+    const editItem = async () => {
       try {
         const response = await axios.post(
-          "http://127.0.0.1:10000/additem",
+          "http://127.0.0.1:10000/edititem",
           {
-            table_id: currentId.value,
-            id: "t" + Date.now().toString(),
-            name: inputName.value,
-            price: inputPrice.value,
-            marker: "",
+            table_id: table_id.value,
+            id: itemId.value,
+            name: itemName.value,
+            price: itemPrice.value,
           },
           {
             headers: {
@@ -67,8 +90,7 @@ export default {
         );
         // console.log(response)
         if (response.data.message === "success") {
-          console.log("新增成功");
-          refresh("refresh");
+          isItemFreshing.value = true;
           showAlert.value = false;
           isProcessing.value = false;
         }
@@ -78,13 +100,251 @@ export default {
       }
     };
 
+    //新增品項
+    const addItem = async () => {
+      try {
+        const response = await axios.post(
+          "http://127.0.0.1:10000/additem",
+          {
+            table_id: table_id.value,
+            id: "t" + Date.now().toString(),
+            name: itemName.value,
+            price: itemPrice.value,
+            marker: "",
+            order_id: itemNum.value + 1,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        // console.log(response)
+        if (response.data.message === "success") {
+          isItemFreshing.value = true;
+          showAlert.value = false;
+          isProcessing.value = false;
+        }
+      } catch (error) {
+        isProcessing.value = false;
+        console.error(error);
+      }
+    };
+
+    //刪除品項
+    const delItem = async () => {
+      try {
+        const response = await axios.post(
+          "http://127.0.0.1:10000/delitem",
+          {
+            table_id: table_id.value,
+            id: itemId.value,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (response.data.message === "success") {
+          isProcessing.value = false;
+          console.log("刪除成功");
+          isItemFreshing.value = true;
+          showAlert.value = false;
+        }
+      } catch (error) {
+        isProcessing.value = false;
+        console.error(error);
+      }
+    };
+
+    //點擊取消鍵
+    const cancel = () => {
+      showAlert.value = false;
+      arrayMarker.value = [];
+    };
+
+    //新增marker
+    const addMarker = async () => {
+      if (inputMarker.value === "") {
+        alert("請輸入備註");
+        return;
+      }
+      if (!isAdding.value) {
+        arrayMarker.value.push({
+          id: "t" + Date.now().toString(),
+          value: inputMarker.value,
+        });
+        const string = JSON.stringify(arrayMarker.value);
+        try {
+          const response = await axios.post(
+            "http://127.0.0.1:10000/addmarker",
+            {
+              table_id: table_id.value,
+              item_id: itemId.value,
+              marker: string,
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          // console.log(response)
+          if (response.data.message === "success") {
+            isProcessing.value = false;
+            isItemFreshing.value = true;
+            inputMarker.value = "";
+          }
+        } catch (error) {
+          isProcessing.value = false;
+          console.error(error);
+        }
+      }
+    };
+
+    //刪除marker
+    const delMarker = async (id) => {
+      console.log(arrayMarker.value);
+      if (editingMarker.value === "") {
+        const index = arrayMarker.value.findIndex((item) => item.id === id);
+
+        if (index !== -1) {
+          arrayMarker.value.splice(index, 1);
+        }
+
+        const string = JSON.stringify(arrayMarker.value);
+
+        try {
+          const response = await axios.post(
+            "http://127.0.0.1:10000/addmarker",
+            {
+              table_id: table_id.value,
+              item_id: itemId.value,
+              marker: string,
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          // console.log(response)
+          if (response.data.message === "success") {
+            isProcessing.value = false;
+            isItemFreshing.value = true;
+          }
+        } catch (error) {
+          isProcessing.value = false;
+          console.error(error);
+        }
+      } else {
+        editingMarker.value = "";
+      }
+    };
+
+    //編輯marker
+    const editMarker = async (id, value) => {
+      console.log(id, value);
+      if (editingMarker.value == "") {
+        editingMarker.value = id;
+        inputEditMarker.value = value;
+      } else {
+        if (inputEditMarker.value === "") {
+          alert("請輸入備註");
+          return;
+        } else if (inputEditMarker.value === value) {
+          editingMarker.value = "";
+          console.log("一樣");
+          return;
+        } else {
+          console.log(arrayMarker.value[0].id == id);
+          const index = arrayMarker.value.findIndex((item) => item.id === id);
+          console.log(index);
+          if (index !== null) {
+            arrayMarker.value[index].value = inputEditMarker.value;
+            console.log(arrayMarker.value);
+          }
+
+          const string = JSON.stringify(arrayMarker.value);
+          console.log(string);
+
+          try {
+            const response = await axios.post(
+              "http://127.0.0.1:10000/addmarker",
+              {
+                table_id: table_id.value,
+                item_id: itemId.value,
+                marker: string,
+              },
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              }
+            );
+            // console.log(response)
+            if (response.data.message === "success") {
+              isProcessing.value = false;
+              editingMarker.value = "";
+              isItemFreshing.value = true;
+            }
+          } catch (error) {
+            isProcessing.value = false;
+            console.error(error);
+          }
+        }
+      }
+    };
+
+    //重新排序marker
+    const handleDragEnd = async () => {
+      const string = JSON.stringify(arrayMarker.value);
+      try {
+        const response = await axios.post(
+          "http://127.0.0.1:10000/addmarker",
+          {
+            table_id: table_id.value,
+            item_id: itemId.value,
+            marker: string,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        // console.log(response)
+        if (response.data.message === "success") {
+          isProcessing.value = false;
+          isItemFreshing.value = true;
+        }
+      } catch (error) {
+        isProcessing.value = false;
+        console.error(error);
+      }
+    };
+
     return {
       isEditing,
-      del,
       confirm,
-      inputName,
-      inputPrice,
+      delItem,
       isProcessing,
+      isAdding,
+      itemName,
+      itemPrice,
+      itemId,
+      showAlert,
+      isAddingMarker,
+      inputMarker,
+      addMarker,
+      delMarker,
+      editMarker,
+      cancel,
+      handleDragEnd,
+      inputEditMarker,
+      editingMarker,
+      arrayMarker,
     };
   },
 };
@@ -93,30 +353,65 @@ export default {
 <template>
   <div class="main">
     <div class="content">
-      <h1>新增品項</h1>
+      <div class="top">
+        <i class="material-icons" @click="delItem" v-if="!isAdding"
+          >delete_forever</i
+        >
+      </div>
+      <h1>{{ isAdding ? "新增品項" : "編輯品項" }}</h1>
       <div class="middle">
         <div class="left">
-          <input type="text" v-model="inputName" placeholder="品項名稱" />
-          <input type="number" v-model="inputPrice" placeholder="價格" />
+          <input type="text" v-model="itemName" placeholder="品項名稱" />
+          <input type="number" v-model="itemPrice" placeholder="價格" />
         </div>
-        <div class="right">
-          <button class="addMarker" :disabled="isProcessing">新增備註</button>
-          <!-- <v-draggable
-            v-model="markers"
+        <div class="right" v-if="!isAdding">
+          <button
+            class="add-marker-btn"
+            @click="isAddingMarker = !isAddingMarker"
+            :disabled="isProcessing"
+          >
+            新增備註
+          </button>
+          <div class="add-marker-text" v-if="isAddingMarker">
+            <input type="text" v-model="inputMarker" />
+            <button @click="addMarker">新增</button>
+          </div>
+          <v-draggable
+            v-model="arrayMarker"
             tag="ul"
-            :disabled="editingMarkers"
             itemKey="id"
+            :disabled="editingMarker !== ''"
+            @end="handleDragEnd"
           >
             <template #item="{ element: marker }">
-              <li>{{ marker }}</li>
+              <div class="marker-content">
+                <input
+                  type="text"
+                  v-model="inputEditMarker"
+                  v-if="editingMarker == marker.id"
+                />
+                <li v-if="editingMarker !== marker.id">{{ marker.value }}</li>
+                <div class="marker-content-btns">
+                  <i
+                    class="material-icons edit"
+                    @click="editMarker(marker.id, marker.value)"
+                    >{{ editingMarker == marker.id ? "done" : "edit" }}</i
+                  >
+                  <i class="material-icons" @click="delMarker(marker.id)">{{
+                    editingMarker == marker.id ? "close" : "delete_forever"
+                  }}</i>
+                </div>
+              </div>
             </template>
-          </v-draggable> -->
+          </v-draggable>
         </div>
       </div>
       <div class="buttons">
-        <button class="del" @click="del" :disabled="isProcessing">取消</button>
+        <button class="cancel" @click="cancel" :disabled="isProcessing">
+          取消
+        </button>
         <button class="confirm" @click="confirm" :disabled="isProcessing">
-          確定
+          {{ isAdding ? "確定" : "修改" }}
         </button>
       </div>
     </div>
@@ -186,6 +481,10 @@ h1 {
   margin-top: 20px;
 }
 
+.buttons {
+  margin-top: 30px;
+}
+
 button {
   box-shadow: none;
   background: #5eab6d;
@@ -194,7 +493,7 @@ button {
   border-radius: 3px;
   position: relative;
   padding: 8px 30px;
-  margin: 25px 1px 0 20px;
+  margin: 0px 10px 0 10px;
   font-size: 25px;
   letter-spacing: 0;
   cursor: pointer;
@@ -205,19 +504,20 @@ button:hover {
   background: #398439;
 }
 
-.addMarker {
+.add-marker-btn {
   background: var(--second-color);
+  margin: 0;
 }
 
-.addMarker:hover {
+.add-marker-btn:hover {
   background: var(--hover-color);
 }
 
-.del {
+.cancel {
   background: rgba(244, 67, 54, 0.846);
 }
 
-.del:hover {
+.cancel:hover {
   background: #ac2925;
 }
 
@@ -225,5 +525,81 @@ button:disabled,
 button:disabled:hover {
   background: #d0d8db;
   cursor: not-allowed;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  margin-bottom: -35px;
+}
+
+i {
+  font-size: 45px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  color: rgba(244, 67, 54, 0.846);
+}
+
+i:hover {
+  color: #ac2925;
+}
+
+.edit {
+  color: #5eab6d;
+}
+
+.edit:hover {
+  color: #398439;
+}
+.right {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-direction: column;
+  margin-left: 30px;
+}
+
+.add-marker-text {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.add-marker-text input[type="text"] {
+  width: 150px;
+  height: 30px;
+}
+
+.add-marker-text button,
+.add-marker-btn {
+  padding: 6px 15px;
+  font-size: 23px;
+}
+
+ul {
+  list-style-type: none;
+  font-size: 23px;
+  width: 100%;
+}
+
+li {
+  font-size: 27px;
+}
+
+.marker-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.marker-content input[type="text"] {
+  height: 30px;
+  width: 150px;
+  margin-top: 0;
 }
 </style>

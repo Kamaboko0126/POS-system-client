@@ -22,23 +22,21 @@ export default {
       isProcessing.value = true;
 
       if (isAdding.value) {
-        console.log("新增");
         if (!regex.test(inputText.value)) {
-          console.log("格式錯誤");
+          alert("格式錯誤");
           isProcessing.value = false;
           return;
         } else {
           addClass(inputText.value);
         }
       } else {
-        console.log("修改");
         if (inputText.value === initialInputText.value) {
-          console.log("未修改");
           isProcessing.value = false;
+          showAlert.value = false;
           return;
         } else {
           if (!regex.test(inputText.value)) {
-            console.log("格式錯誤");
+            alert("格式錯誤");
             isProcessing.value = false;
             return;
           } else {
@@ -55,11 +53,9 @@ export default {
       isProcessing.value = true;
 
       if (isAdding.value) {
-        console.log("取消");
         isProcessing.value = false;
       } else {
         deleteClass(id.value);
-        console.log("刪除");
       }
       isAdding.value = false;
       showAlert.value = false;

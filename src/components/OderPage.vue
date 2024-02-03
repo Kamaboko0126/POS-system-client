@@ -1,7 +1,7 @@
 <template>
   <section>
-    <HorizontalMenu :mode="'edit'"/>
-    <CardModal :mode="'edit'"/>
+    <HorizontalMenu :mode="'oder'"/>
+    <CardModal />
   </section>
 </template>
 

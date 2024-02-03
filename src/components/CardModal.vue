@@ -1,17 +1,40 @@
 <script>
-import { ref, watch, toRaw, provide, inject } from "vue";
+import { ref, toRefs, watch, toRaw, provide, inject } from "vue";
 import { useStore } from "vuex";
 import CardAlert from "./CardAlert.vue";
+import axios from "axios";
+
 export default {
-  setup() {
+  props: {
+    mode: String,
+  },
+  setup(props) {
+    const { mode } = toRefs(props);
+    const currentMode = mode.value;
     const store = useStore();
     const allItems = ref(store.state.allItems);
-    const currentItem = inject('currentItem');
+    const currentItem = inject("currentItem");
     const isEditing = inject("isCardEditing");
+    provide("isCardEditing", isEditing);
     const isClassEditing = inject("isClassEditing");
     const showAlert = ref(false);
     provide("showAlert", showAlert);
-    provide("isCardEditing", isEditing);
+    const isAdding = ref(false);
+    provide("isAdding", isAdding);
+    const itemName = ref("");
+    provide("itemName", itemName);
+    const itemId = ref("");
+    provide("itemId", itemId);
+    const itemPrice = ref("");
+    provide("itemPrice", itemPrice);
+    const arrayMarker = ref([]);
+    provide("arrayMarker", arrayMarker);
+    const itemNum = ref(currentItem.value.length);
+    provide("itemNum", itemNum);
+    const currentId = inject("currentId");
+
+    const classNum = inject("classNum");
+
     // 監控 items 的變化
     watch(
       () => store.state.allItems,
@@ -20,6 +43,42 @@ export default {
       }
     );
 
+    //點擊card
+    const selectItem = (id, name, price, marker) => {
+      if (isEditing.value) {
+        if (id === "add") {
+          showAlert.value = true;
+          isAdding.value = true;
+          itemId.value = "";
+          itemName.value = "";
+          itemPrice.value = "";
+          arrayMarker.value = [];
+        } else {
+          isAdding.value = false;
+          itemId.value = id;
+          itemPrice.value = price;
+          itemName.value = name;
+          // console.log(marker);
+          if (marker == "") {
+            arrayMarker.value = [];
+          } else {
+            try {
+              console.log(marker);
+              // console.log(JSON.parse(marker));
+              arrayMarker.value = JSON.parse(marker);
+            } catch (e) {
+              console.error("Invalid JSON string:", marker);
+            }
+          }
+
+          showAlert.value = true;
+        }
+      } else {
+        console.log(id, name, price, marker);
+      }
+    };
+
+    //點擊編輯
     const editing = () => {
       if (isEditing.value) {
         isEditing.value = false;
@@ -28,16 +87,55 @@ export default {
         isClassEditing.value = false;
       }
     };
-    const handleDragEnd = () => {
+
+    //重新排序cards
+    const handleDragEnd = async () => {
       // 拖放操作結束，你可以在這裡保存新的順序
-      const currentItem = toRaw(currentItem.value);
+      // console.log(toRaw(currentItem.value));
+      const rawItems = toRaw(currentItem.value);
+      const data = [];
+      for (let i = 0; i < rawItems.length; i++) {
+        data.push({
+          order_id: i + 1,
+          id: rawItems[i].id,
+        });
+      }
+
+      const jsonData = JSON.stringify(toRaw(data));
+      try {
+        const response = await axios.post(
+          "http://127.0.0.1:10000/changeitemorder",
+          {
+            table_id: currentId.value,
+            data: jsonData,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        // console.log(response);
+        if (response.data.message === "success") {
+          console.log("排序成功");
+        }
+      } catch (error) {
+        console.error(error);
+      }
     };
     return {
       currentItem,
       isEditing,
       showAlert,
+      itemName,
+      itemPrice,
+      arrayMarker,
+      itemId,
+      classNum,
+      currentMode,
       handleDragEnd,
       editing,
+      selectItem,
     };
   },
   components: { CardAlert },
@@ -45,24 +143,45 @@ export default {
 </script>
 
 <template>
-  <CardAlert v-if="showAlert"/>
+  <CardAlert v-if="showAlert" />
   <div class="cards-content">
-    <div class="card-body" @click="editing" :class="{ editing: isEditing }">
+    <div
+      class="card-body"
+      @click="editing"
+      :class="{ editing: isEditing }"
+      v-if="classNum != 0 && currentMode == 'edit'"
+    >
       編輯
     </div>
-    <div class="card-body" v-if="isEditing" @click="showAlert = true">+ 新增</div>
+    <div class="card-body" v-if="classNum == 0">點擊編輯以新增類別</div>
+    <div
+      class="card-body"
+      v-if="classNum != 0 && currentItem.length == 0 && !isEditing"
+    >
+      點擊編輯以新增品項
+    </div>
+    <div
+      class="card-body"
+      v-if="isEditing"
+      @click="selectItem('add', '', '', '')"
+    >
+      + 新增
+    </div>
     <v-draggable
       v-model="currentItem"
       tag="ul"
-      :disabled="isEditing"
+      :disabled="!isEditing"
       itemKey="id"
       @end="handleDragEnd"
     >
       <template #item="{ element: Item }">
-        <div class="card-body">
+        <div
+          class="card-body"
+          @click="selectItem(Item.id, Item.name, Item.price, Item.marker)"
+        >
           <li>
-            {{ Item.name }}
-            {{ Item.price }}
+            <p>{{ Item.name }}</p>
+            <p>{{ Item.price }}</p>
           </li>
         </div>
       </template>
@@ -74,8 +193,15 @@ export default {
 .cards-content {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: start;
+  align-items: start;
 }
+
+ul {
+  display: flex;
+  flex-wrap: wrap;
+}
+
 .card-body {
   width: 300px;
   height: 135px;
@@ -96,6 +222,14 @@ export default {
 
 .card-body:hover {
   background-color: #95abb9;
+}
+
+li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  list-style-type: none;
 }
 
 .editing {

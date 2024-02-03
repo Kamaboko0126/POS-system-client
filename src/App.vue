@@ -37,7 +37,7 @@ export default {
     <router-view></router-view>
     <MenuItem />
   </div>
-  <FooterItem />
+  <FooterItem hidden/>
 </template>
 
 <style>

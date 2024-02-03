@@ -1,5 +1,5 @@
 <script>
-import { ref, watch, toRaw, provide, inject, onMounted } from "vue";
+import { ref, toRefs, watch, toRaw, provide, inject, onMounted } from "vue";
 import { useStore } from "vuex";
 import MenuAlert from "./MenuAlert.vue";
 import axios from "axios";
@@ -7,7 +7,12 @@ export default {
   components: {
     MenuAlert,
   },
-  setup() {
+  props: {
+    mode: String,
+  },
+  setup(props) {
+    const { mode } = toRefs(props);
+    const currentMode = mode.value;
     const store = useStore();
     const isAdding = ref(false);
     const showAlert = ref(false);
@@ -29,8 +34,8 @@ export default {
 
     // 使用 ref 來創建一個響應式變量
     const menuClasses = ref(store.state.menuClasses);
-    const classNum = ref(menuClasses.value.length);
-    provide("classNum", classNum);
+    const classNum = inject("classNum");
+    classNum.value = menuClasses.value.length;
 
     // 監控 menuClasses 的變化
     watch(
@@ -87,7 +92,7 @@ export default {
       id.value = "";
     };
 
-    //重新排序
+    //重新排序類別
     const handleDragEnd = async () => {
       // 拖放操作結束，你可以在這裡保存新的順序
       const rawMenuClasses = toRaw(menuClasses.value);
@@ -122,41 +127,57 @@ export default {
       }
     };
 
+    const isItemFreshing = inject("isItemFreshing");
+
+    watch(
+      () => isItemFreshing.value,
+      (newVal) => {
+        if (newVal) {
+          store.dispatch("fetchMenuItem").then(() => {
+            currentItem.value = toRaw(allItems.value[currentId.value]);
+            return;
+          });
+          isItemFreshing.value = false;
+        }
+      }
+    );
+
     //更新類別資料
     const refresh = () => {
+      // console.log("fetchMenuClass");
       store.dispatch("fetchMenuClass").then(() => {
         // console.log("fresh");
         getCurrentItem("refresh");
       });
     };
 
+    //取得當前類別
     const getCurrentItem = async (id) => {
       if (id === "refresh") {
         if (menuClasses.value.length > 0) {
+          // console.log("fetchMenuItem");
           store.dispatch("fetchMenuItem").then(() => {
             currentId.value = menuClasses.value[0].id;
             currentItem.value = toRaw(allItems.value[menuClasses.value[0].id]);
-            // console.log(currentId.value);
-          })
+            return;
+          });
           return;
         } else {
           currentId.value = "";
           currentItem.value = [];
           return;
         }
+      } else {
+        currentId.value = id;
+        // console.log("currentId", currentId.value);
+        currentItem.value = toRaw(allItems.value[id]);
       }
-      currentId.value = id;
-      // console.log("currentId", currentId.value);
-      currentItem.value = toRaw(allItems.value[id]);
     };
 
     provide("refresh", refresh);
 
     onMounted(() => {
-      store.dispatch("fetchMenuClass").then(() => {
-        store.dispatch("fetchMenuItem");
-        getCurrentItem("refresh");
-      });
+      refresh();
     });
 
     return {
@@ -166,6 +187,7 @@ export default {
       name,
       currentId,
       id,
+      currentMode,
       refresh,
       selectItem,
       add,
@@ -177,12 +199,13 @@ export default {
 </script>
 
 <template>
-  <MenuAlert v-if="showAlert" :refresh="refresh" />
+  <MenuAlert v-if="showAlert" />
   <div
     class="horizontal-menu-content"
     :class="{ 'hide-scrollbar': !isEditing }"
+    :style="{paddingLeft: currentMode === 'edit' ? '155px' : '20px'}"
   >
-    <div class="button-content">
+    <div class="button-content" v-if="currentMode == 'edit'">
       <div class="edit-btn" @click="editing" :class="{ editing: isEditing }">
         編輯
       </div>

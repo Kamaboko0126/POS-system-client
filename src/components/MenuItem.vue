@@ -7,7 +7,7 @@ export default {
     const menuItems = ref([
       {
         name: "點餐頁",
-        path: "/order",
+        path: "/oder",
       },
       {
         name: "編輯菜單",

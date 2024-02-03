@@ -1,22 +1,3 @@
-<template>
-  <div class="header-body">
-    <div class="left">
-      <router-link :to="isLogin ? '/order' : '/'"> 美食棧 </router-link>
-    </div>
-    <div class="right" v-if="route.name !== 'login'">
-      <router-link to="/login" v-if="!isLogin">
-        <div class="login">
-          <i class="material-icons">person</i>
-          <p>登入</p>
-        </div>
-      </router-link>
-      <div class="menu" v-if="isLogin">
-        <i class="material-icons" @click="openMenu">menu</i>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script>
 import { inject, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
@@ -45,6 +26,25 @@ export default {
   },
 };
 </script>
+
+<template>
+  <div class="header-body">
+    <div class="left">
+      <router-link :to="isLogin ? '/oder' : '/'"> 美食棧 </router-link>
+    </div>
+    <div class="right" v-if="route.name !== 'login'">
+      <router-link to="/login" v-if="!isLogin">
+        <div class="login">
+          <i class="material-icons">person</i>
+          <p>登入</p>
+        </div>
+      </router-link>
+      <div class="menu" v-if="isLogin">
+        <i class="material-icons" @click="openMenu">menu</i>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 .header-body {

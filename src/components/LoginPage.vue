@@ -1,28 +1,3 @@
-<template>
-  <form @submit.prevent="send">
-    <div class="input-content">
-      <h1>管理者登入</h1>
-      <p class="warningText">{{ warningText }}</p>
-      <input
-        type="text"
-        name="account"
-        v-model="inputAccount"
-        placeholder="Account"
-      />
-      <input
-        type="password"
-        name="password"
-        v-model="inputPassword"
-        id="password"
-        placeholder="Password"
-      />
-      <div class="button-content">
-        <button type="submit" :disabled="isProcessing">登入</button>
-      </div>
-    </div>
-  </form>
-</template>
-
 <script>
 import { onMounted, ref } from "vue";
 import axios from "axios";
@@ -51,6 +26,7 @@ export default {
       }
     };
 
+    
     const send = async () => {
       isProcessing.value = true;
       statusCheck();
@@ -65,7 +41,7 @@ export default {
           warningText.value = "登入成功";
           sessionStorage.setItem("isLogin", true);
           setTimeout(() => {
-            window.location.href = "/order";
+            window.location.href = "/oder";
           }, 1000);
         } else {
           console.log("登入失敗");
@@ -99,6 +75,32 @@ export default {
   },
 };
 </script>
+
+
+<template>
+  <form @submit.prevent="send">
+    <div class="input-content">
+      <h1>管理者登入</h1>
+      <p class="warningText">{{ warningText }}</p>
+      <input
+        type="text"
+        name="account"
+        v-model="inputAccount"
+        placeholder="Account"
+      />
+      <input
+        type="password"
+        name="password"
+        v-model="inputPassword"
+        id="password"
+        placeholder="Password"
+      />
+      <div class="button-content">
+        <button type="submit" :disabled="isProcessing">登入</button>
+      </div>
+    </div>
+  </form>
+</template>
 
 <style>
 form {
