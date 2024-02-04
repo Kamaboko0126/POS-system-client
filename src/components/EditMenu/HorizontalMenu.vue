@@ -243,7 +243,7 @@ export default {
   display: flex;
   overflow: auto;
   overflow-y: hidden;
-  background: var(--background-color);
+  background: var(--second-color);
   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.2);
   padding-left: 155px;
 }
@@ -278,7 +278,7 @@ export default {
   width: 150px;
   height: var(--horizontal-menu-height);
   background: var(--second-color);
-  color: var(--second-font-color);
+  color: var(--font-color);
   font-size: 30px;
   font-weight: bold;
   display: flex;
@@ -292,7 +292,7 @@ export default {
   width: 150px;
   height: var(--horizontal-menu-height);
   background: var(--second-color);
-  color: var(--second-font-color);
+  color: var(--font-color);
   font-size: 30px;
   font-weight: bold;
   display: flex;
@@ -314,7 +314,7 @@ li {
   border-radius: 5px;
   font-size: 30px;
   font-weight: bold;
-  color: var(--second-font-color);
+  color: var(--font-color);
   cursor: pointer;
   margin: 0 10px;
   transition: all 0.3s ease-in-out;
@@ -324,7 +324,7 @@ li {
 li span,
 .add-btn span {
   transform: translateY(-17px) translateX(19px);
-  background: #5eab6d;
+  background: var(--confirm-color);
   border-radius: 100px;
   font-size: 18px;
   padding: 2px;
@@ -334,20 +334,20 @@ li span,
 .edit-btn:hover,
 .add-btn:hover,
 li:hover {
-  background: var(--hover-color);
+  background: var(--second-hover);
 }
 
 .current-item {
-  background: var(--hover-color);
+  background: var(--second-hover);
   color: #fff;
 }
 
 .editing {
-  background: #5eab6d;
+  background: var(--confirm-color);
   transition: all 0.3s ease-in-out;
 }
 
 .editing:hover {
-  background: #69bb7a;
+  background: var(--confirm-hover);
 }
 </style>

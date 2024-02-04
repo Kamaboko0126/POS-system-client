@@ -1,5 +1,5 @@
 <script>
-import { inject, ref, watch } from "vue";
+import { inject, ref } from "vue";
 import axios from "axios";
 
 export default {
@@ -20,12 +20,12 @@ export default {
     const inputEditMarker = ref("");
     const editingMarker = ref("");
     const itemNum = inject("itemNum");
-    watch(
-      () => table_id.value,
-      (newVal) => {
-        console.log("table_id changed", newVal);
-      }
-    );
+    // watch(
+    //   () => table_id.value,
+    //   (newVal) => {
+        // console.log("table_id changed", newVal);
+    //   }
+    // );
 
     //點擊確認&修改鍵
     const confirm = () => {
@@ -205,7 +205,7 @@ export default {
 
     //刪除marker
     const delMarker = async (id) => {
-      console.log(arrayMarker.value);
+      // console.log(arrayMarker.value);
       if (editingMarker.value === "") {
         const index = arrayMarker.value.findIndex((item) => item.id === id);
 
@@ -245,7 +245,7 @@ export default {
 
     //編輯marker
     const editMarker = async (id, value) => {
-      console.log(id, value);
+      // console.log(id, value);
       if (editingMarker.value == "") {
         editingMarker.value = id;
         inputEditMarker.value = value;
@@ -258,16 +258,16 @@ export default {
           console.log("一樣");
           return;
         } else {
-          console.log(arrayMarker.value[0].id == id);
+          // console.log(arrayMarker.value[0].id == id);
           const index = arrayMarker.value.findIndex((item) => item.id === id);
-          console.log(index);
+          // console.log(index);
           if (index !== null) {
             arrayMarker.value[index].value = inputEditMarker.value;
-            console.log(arrayMarker.value);
+            // console.log(arrayMarker.value);
           }
 
           const string = JSON.stringify(arrayMarker.value);
-          console.log(string);
+          // console.log(string);
 
           try {
             const response = await axios.post(
@@ -487,8 +487,8 @@ h1 {
 
 button {
   box-shadow: none;
-  background: #5eab6d;
-  color: #fff;
+  background: var(--confirm-color);
+  color: var(--font-color);
   border: none;
   border-radius: 3px;
   position: relative;
@@ -501,30 +501,24 @@ button {
 }
 
 button:hover {
-  background: #398439;
+  background: var(--confirm-hover);
 }
 
 .add-marker-btn {
-  background: var(--second-color);
+  background: var(--main-color);
   margin: 0;
 }
 
 .add-marker-btn:hover {
-  background: var(--hover-color);
+  background: var(--main-hover);
 }
 
 .cancel {
-  background: rgba(244, 67, 54, 0.846);
+  background: var(--cancel-color);
 }
 
 .cancel:hover {
-  background: #ac2925;
-}
-
-button:disabled,
-button:disabled:hover {
-  background: #d0d8db;
-  cursor: not-allowed;
+  background: var(--cancel-hover);
 }
 
 .top {
@@ -539,19 +533,19 @@ i {
   font-size: 45px;
   cursor: pointer;
   transition: all 0.3s ease-in-out;
-  color: rgba(244, 67, 54, 0.846);
+  color: var(--cancel-color);
 }
 
 i:hover {
-  color: #ac2925;
+  color: var(--cancel-hover);
 }
 
 .edit {
-  color: #5eab6d;
+  color: var(--confirm-color);
 }
 
 .edit:hover {
-  color: #398439;
+  color: var(--confirm-hover);
 }
 .right {
   display: flex;
@@ -559,6 +553,8 @@ i:hover {
   justify-content: flex-start;
   flex-direction: column;
   margin-left: 30px;
+  max-height: 55vh;
+  overflow: auto;
 }
 
 .add-marker-text {

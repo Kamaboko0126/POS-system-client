@@ -1,21 +1,18 @@
 <template>
   <section>
-      <LoginCheck />
+    <LoginCheck />
   </section>
 </template>
 
 <script>
-import LoginCheck from "../components/LoginCheck.vue";
+import LoginCheck from "../components/UserStatus/LoginCheck.vue";
 export default {
   name: "HomePage",
   components: {
     LoginCheck,
   },
   setup() {
-
-    return {
-      
-    };
+    return {};
   },
 };
 </script>
@@ -25,5 +22,4 @@ section {
   /* background: #232323; */
   height: 100%;
 }
-
 </style>

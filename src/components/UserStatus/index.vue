@@ -26,7 +26,6 @@ export default {
       }
     };
 
-    
     const send = async () => {
       isProcessing.value = true;
       statusCheck();
@@ -76,7 +75,6 @@ export default {
 };
 </script>
 
-
 <template>
   <form @submit.prevent="send">
     <div class="input-content">
@@ -112,8 +110,12 @@ form {
   flex-direction: column;
 }
 
+h1 {
+  color: var(--header-color);
+}
+
 .warningText {
-  color: rgb(156, 24, 24);
+  color: var(--cancel-color);
   font-weight: bold;
 }
 
@@ -124,7 +126,9 @@ form {
   flex-direction: column;
   padding: 5%;
   border-radius: 5px;
-  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 20px -12px rgba(0, 0, 0, 0.42),
+    0 3px 20px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(153, 153, 153, 0.3);
 }
 
 input[type="text"],
@@ -153,24 +157,18 @@ button {
   border-radius: 5px;
   padding: 0 10px;
   font-size: 20px;
-  background-color: #3498db;
+  background-color: var(--main-color);
   color: white;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 button:hover {
-  background-color: #2980b9;
+  background-color: var(--main-hover);
 }
 
 button:active {
   transform: scale(0.98);
   transition: transform 0.1s ease;
-}
-
-button:disabled {
-  background-color: #bdc3c7;
-  color: #7f8c8d;
-  cursor: not-allowed;
 }
 </style>

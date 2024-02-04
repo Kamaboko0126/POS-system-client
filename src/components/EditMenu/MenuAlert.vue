@@ -256,8 +256,8 @@ input[type="text"] {
 
 button {
   box-shadow: none;
-  background: #5eab6d;
-  color: #fff;
+  background: var(--confirm-color);
+  color: var(--font-color);
   border: none;
   border-radius: 3px;
   position: relative;
@@ -270,14 +270,14 @@ button {
 }
 
 button:hover {
-  background: #398439;
+  background: var(--confirm-hover);
 }
 
 .del {
-  background: rgba(244, 67, 54, 0.846);
+  background: var(--cancel-color);
 }
 
 .del:hover {
-  background: #ac2925;
+  background: var(--cancel-hover);
 }
 </style>

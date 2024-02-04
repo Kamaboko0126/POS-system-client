@@ -28,9 +28,17 @@ export default {
 </script>
 
 <template>
-  <div class="header-body">
+  <div
+    class="header-body"
+    :style="{
+      background:
+        route.name == 'editmenu'
+          ? 'var(--second-header-color)'
+          : 'var(--header-color)',
+    }"
+  >
     <div class="left">
-      <router-link :to="isLogin ? '/oder' : '/'"> 美食棧 </router-link>
+      <router-link :to="isLogin ? '/order' : '/'"> 美食棧 </router-link>
     </div>
     <div class="right" v-if="route.name !== 'login'">
       <router-link to="/login" v-if="!isLogin">
@@ -57,6 +65,12 @@ export default {
   align-items: center;
 }
 
+a,
+p,
+i {
+  color: var(--font-color);
+}
+
 .left {
   font-size: 30px;
   font-weight: bold;
@@ -65,9 +79,6 @@ export default {
   justify-content: center;
 }
 
-.left a {
-  color: var(--second-font-color);
-}
 .right {
   display: flex;
   align-items: center;
@@ -83,7 +94,6 @@ export default {
 
 .right i {
   font-size: 30px;
-  color: var(--second-font-color);
   cursor: pointer;
 }
 
@@ -92,6 +102,5 @@ export default {
   font-weight: bold;
   margin-left: 5px;
   cursor: pointer;
-  color: var(--second-font-color);
 }
 </style>

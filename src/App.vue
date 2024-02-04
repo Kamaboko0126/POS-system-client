@@ -30,34 +30,45 @@ export default {
 };
 </script>
 
-
 <template>
   <HeaderItem />
   <div class="content">
     <router-view></router-view>
     <MenuItem />
   </div>
-  <FooterItem hidden/>
+  <FooterItem hidden />
 </template>
 
 <style>
 :root {
   --header-height: 65px;
   --header-color: #41546a;
+  --second-header-color: #866069;
   --horizontal-menu-height: 95px;
-  --main-color: #000;
-  --second-font-color: #fff;
-  --second-color: #89a1b1;
-  --third-color: #d0d8db;
-  --warning-color: #a82e19;
-  --background-color: #89a1b1;
-  --hover-color: #95abb9;
+  --main-color: #89a1b1;
+  --main-hover: #95abb9;
+  --second-color:#bf8291;
+  --second-hover:rgb(199, 145, 157);
+  --font-color: #fff;
+  --confirm-color: #5eab6d;
+  --confirm-hover: #69bb7a;
+  --cancel-color: #e13c30;
+  --cancel-hover: #f85a4c;
+  --disabled-color: #bdc3c7;
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+
+button:disabled,
+button:disabled:hover {
+  background: var(--disabled-color);
+  color: #7f8c8d;
+  cursor: not-allowed;
 }
 
 section {

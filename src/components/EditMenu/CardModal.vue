@@ -63,7 +63,7 @@ export default {
             arrayMarker.value = [];
           } else {
             try {
-              console.log(marker);
+              // console.log(marker);
               // console.log(JSON.parse(marker));
               arrayMarker.value = JSON.parse(marker);
             } catch (e) {
@@ -74,7 +74,7 @@ export default {
           showAlert.value = true;
         }
       } else {
-        console.log(id, name, price, marker);
+        // console.log(id, name, price, marker);
       }
     };
 
@@ -166,6 +166,7 @@ export default {
       @click="selectItem('add', '', '', '')"
     >
       + 新增
+      <i class="material-icons" v-if="isEditing">edit</i>
     </div>
     <v-draggable
       v-model="currentItem"
@@ -180,7 +181,9 @@ export default {
           @click="selectItem(Item.id, Item.name, Item.price, Item.marker)"
         >
           <li>
-            <p>{{ Item.name }}</p>
+            <p>
+              {{ Item.name }}<i class="material-icons" v-if="isEditing">edit</i>
+            </p>
             <p>{{ Item.price }}</p>
           </li>
         </div>
@@ -221,7 +224,7 @@ ul {
 }
 
 .card-body:hover {
-  background-color: #95abb9;
+  background-color: var(--second-hover);
 }
 
 li {
@@ -232,12 +235,21 @@ li {
   list-style-type: none;
 }
 
+i {
+  transform: translateY(-13px) translateX(23px);
+  background: var(--confirm-color);
+  border-radius: 100px;
+  font-size: 20px;
+  padding: 2px;
+  margin-left: -15px;
+}
+
 .editing {
-  background: #5eab6d;
+  background: var(--confirm-color);
   transition: all 0.3s ease-in-out;
 }
 
 .editing:hover {
-  background: #69bb7a;
+  background: var(--confirm-hover);
 }
 </style>

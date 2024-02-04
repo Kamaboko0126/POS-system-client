@@ -7,7 +7,7 @@ export default {
     const menuItems = ref([
       {
         name: "點餐頁",
-        path: "/oder",
+        path: "/order",
       },
       {
         name: "編輯菜單",
@@ -81,18 +81,18 @@ export default {
 }
 
 .menu-item {
-  width: 100%;
+  width: 90%;
   padding: 20px 0;
-  border-bottom: 1px solid #ccc;
+  margin: 7px 0;
+  border-radius: 5px;
   text-align: center;
-  font-size: 20px;
-  transition: background-color 0.5s ease;
-  color: var(--main-color);
-  font-weight: 800;
+  font-size: 25px;
+  transition: all 0.2s ease;
+  color: var(--header-color);
+  /* background: var(--main-color); */
 }
 
 .menu-item:hover {
-  background-color: var(--second-color);
-  color: #fff;
+  background: #c0ddf965;
 }
 </style>
