@@ -31,7 +31,7 @@ export default {
       statusCheck();
       if (warningText.value != "") return;
       try {
-        const response = await axios.post("http://127.0.0.1:10000/login", {
+        const response = await axios.post("http://127.0.0.1:10000/admin/login", {
           Account: inputAccount.value,
           Password: inputPassword.value,
         });
@@ -40,7 +40,7 @@ export default {
           warningText.value = "登入成功";
           sessionStorage.setItem("isLogin", true);
           setTimeout(() => {
-            window.location.href = "/oder";
+            window.location.href = "/order";
           }, 1000);
         } else {
           console.log("登入失敗");

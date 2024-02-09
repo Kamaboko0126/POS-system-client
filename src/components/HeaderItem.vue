@@ -1,5 +1,5 @@
 <script>
-import { inject, onMounted, ref } from "vue";
+import { inject } from "vue";
 import { useRoute } from "vue-router";
 export default {
   name: "HeaderItem",
@@ -7,21 +7,21 @@ export default {
   setup() {
     const openMenu = inject("openMenu");
     const route = useRoute();
-    const isLogin = ref(JSON.parse(sessionStorage.getItem("isLogin")));
+    // const isLogin = ref(JSON.parse(sessionStorage.getItem("isLogin")));
 
-    const updateIcon = () => {
-      isLogin.value = JSON.parse(sessionStorage.getItem("isLogin"));
-    };
+    // const updateIcon = () => {
+    //   isLogin.value = JSON.parse(sessionStorage.getItem("isLogin"));
+    // };
 
-    onMounted(() => {
-      updateIcon();
-    });
+    // onMounted(() => {
+    //   updateIcon();
+    // });
 
     return {
       openMenu,
       route,
-      isLogin,
-      updateIcon,
+      // isLogin,
+      // updateIcon,
     };
   },
 };
@@ -38,16 +38,16 @@ export default {
     }"
   >
     <div class="left">
-      <router-link :to="isLogin ? '/order' : '/'"> 美食棧 </router-link>
+      <router-link to="/order"> 美食棧 </router-link>
     </div>
-    <div class="right" v-if="route.name !== 'login'">
-      <router-link to="/login" v-if="!isLogin">
+    <div class="right">
+      <!-- <router-link to="/login" v-if="!isLogin">
         <div class="login">
           <i class="material-icons">person</i>
           <p>登入</p>
         </div>
-      </router-link>
-      <div class="menu" v-if="isLogin">
+      </router-link> -->
+      <div class="menu">
         <i class="material-icons" @click="openMenu">menu</i>
       </div>
     </div>

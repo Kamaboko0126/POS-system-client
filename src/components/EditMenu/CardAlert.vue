@@ -23,7 +23,7 @@ export default {
     // watch(
     //   () => table_id.value,
     //   (newVal) => {
-        // console.log("table_id changed", newVal);
+    // console.log("table_id changed", newVal);
     //   }
     // );
 
@@ -74,8 +74,8 @@ export default {
     //編輯品項
     const editItem = async () => {
       try {
-        const response = await axios.post(
-          "http://127.0.0.1:10000/edititem",
+        const response = await axios.put(
+          "http://127.0.0.1:10000/item/edit",
           {
             table_id: table_id.value,
             id: itemId.value,
@@ -104,7 +104,7 @@ export default {
     const addItem = async () => {
       try {
         const response = await axios.post(
-          "http://127.0.0.1:10000/additem",
+          "http://127.0.0.1:10000/item/add",
           {
             table_id: table_id.value,
             id: "t" + Date.now().toString(),
@@ -134,18 +134,10 @@ export default {
     //刪除品項
     const delItem = async () => {
       try {
-        const response = await axios.post(
-          "http://127.0.0.1:10000/delitem",
-          {
-            table_id: table_id.value,
-            id: itemId.value,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const response = await axios.delete("http://127.0.0.1:10000/item/del", {
+          table_id: table_id.value,
+          id: itemId.value,
+        });
         if (response.data.message === "success") {
           isProcessing.value = false;
           console.log("刪除成功");
@@ -178,7 +170,7 @@ export default {
         const string = JSON.stringify(arrayMarker.value);
         try {
           const response = await axios.post(
-            "http://127.0.0.1:10000/addmarker",
+            "http://127.0.0.1:10000/marker/add",
             {
               table_id: table_id.value,
               item_id: itemId.value,
@@ -217,7 +209,7 @@ export default {
 
         try {
           const response = await axios.post(
-            "http://127.0.0.1:10000/addmarker",
+            "http://127.0.0.1:10000/marker/add",
             {
               table_id: table_id.value,
               item_id: itemId.value,
@@ -271,7 +263,7 @@ export default {
 
           try {
             const response = await axios.post(
-              "http://127.0.0.1:10000/addmarker",
+              "http://127.0.0.1:10000/marker/add",
               {
                 table_id: table_id.value,
                 item_id: itemId.value,
@@ -302,7 +294,7 @@ export default {
       const string = JSON.stringify(arrayMarker.value);
       try {
         const response = await axios.post(
-          "http://127.0.0.1:10000/addmarker",
+          "http://127.0.0.1:10000/marker/add",
           {
             table_id: table_id.value,
             item_id: itemId.value,
@@ -361,8 +353,18 @@ export default {
       <h1>{{ isAdding ? "新增品項" : "編輯品項" }}</h1>
       <div class="middle">
         <div class="left">
-          <input type="text" v-model="itemName" placeholder="品項名稱" />
-          <input type="number" v-model="itemPrice" placeholder="價格" />
+          <input
+            type="text"
+            v-model="itemName"
+            placeholder="品項名稱"
+            @keypress.enter="confirm"
+          />
+          <input
+            type="number"
+            v-model="itemPrice"
+            placeholder="價格"
+            @keypress.enter="confirm"
+          />
         </div>
         <div class="right" v-if="!isAdding">
           <button
@@ -373,7 +375,11 @@ export default {
             新增備註
           </button>
           <div class="add-marker-text" v-if="isAddingMarker">
-            <input type="text" v-model="inputMarker" />
+            <input
+              type="text"
+              v-model="inputMarker"
+              @keypress.enter="addMarker"
+            />
             <button @click="addMarker">新增</button>
           </div>
           <v-draggable
@@ -389,6 +395,7 @@ export default {
                   type="text"
                   v-model="inputEditMarker"
                   v-if="editingMarker == marker.id"
+                  @keypress.enter="editMarker(marker.id, marker.value)"
                 />
                 <li v-if="editingMarker !== marker.id">{{ marker.value }}</li>
                 <div class="marker-content-btns">

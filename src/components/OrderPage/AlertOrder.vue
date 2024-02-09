@@ -1,11 +1,101 @@
 <script>
-import { inject, watch } from "vue";
+import { inject, watch, computed, ref } from "vue";
 export default {
   name: "AlertOrder",
   setup() {
     const showAlert = inject("showAlert");
     const currentOrder = inject("currentOrder");
     const arrayMarker = inject("arrayMarker");
+    const quantity = ref(1);
+    const lists = inject("lists");
+    const isEditingOrder = inject("isEditingOrder");
+    const editOrderId = inject("editOrderId");
+    const editOrderQuantity = inject("editOrderQuantity");
+
+    const checkedMarkers = computed(() => {
+      return arrayMarker.value.filter((marker) => marker.checked);
+    });
+
+    watch(
+      () => lists.value,
+      (newVal) => {
+        console.log(newVal);
+      }
+    );
+
+    watch(
+      () => currentOrder.value,
+      () => {
+        quantity.value = 1;
+      }
+    );
+
+    watch(
+      () => isEditingOrder.value,
+      (newVal) => {
+        if (newVal) {
+          showAlert.value = true;
+          quantity.value = editOrderQuantity.value;
+        }
+      }
+    );
+
+    const close = () => {
+      showAlert.value = false;
+      if (isEditingOrder.value) {
+        isEditingOrder.value = false;
+        console.log(lists.value)
+      }
+    };
+
+    //送出
+    const send = () => {
+      if (!isEditingOrder.value) {
+        const markers = [];
+        for (let i = 0; i < checkedMarkers.value.length; i++) {
+          markers.push(checkedMarkers.value[i].value);
+        }
+
+        const data = {
+          id: "t" + Date.now().toString(),
+          name: currentOrder.value.name,
+          price: currentOrder.value.price,
+          quantity: quantity.value,
+          markers: markers,
+          allMarkers: arrayMarker.value,
+        };
+
+        const existingItem = lists.value.find(
+          (item) =>
+            item.name === data.name &&
+            JSON.stringify(item.markers) === JSON.stringify(data.markers)
+        );
+
+        if (existingItem) {
+          existingItem.quantity += data.quantity;
+        } else {
+          lists.value.push(data);
+        }
+
+        showAlert.value = false;
+      } else {
+        const itemToEdit = lists.value.find(
+          (item) => item.id === editOrderId.value
+        );
+        if (itemToEdit) {
+          itemToEdit.quantity = quantity.value;
+          const markers = [];
+          for (let i = 0; i < checkedMarkers.value.length; i++) {
+            markers.push(checkedMarkers.value[i].value);
+          }
+          itemToEdit.markers = markers;
+          showAlert.value = false;
+          isEditingOrder.value = false;
+        } else {
+          console.log("找不到要編輯的項目");
+        }
+      }
+    };
 
     watch(
       () => currentOrder,
@@ -18,6 +108,10 @@ export default {
       showAlert,
       currentOrder,
       arrayMarker,
+      checkedMarkers,
+      quantity,
+      send,
+      close,
     };
   },
 };
@@ -27,15 +121,28 @@ export default {
   <div class="body" v-if="showAlert">
     <div class="content">
       <div class="close-content">
-        <i class="material-icons" @click="showAlert = !showAlert">close</i>
+        <i class="material-icons" @click="close">close</i>
       </div>
       <h1>品名：{{ currentOrder.name }}</h1>
       <h1>價格：{{ currentOrder.price }}</h1>
-      <h1>數量：</h1>
-      <h1>
-        備註：
-        <p v-for="marker in arrayMarker" :key="marker.id">{{ marker.value }}</p>
+      <h1 class="quantity">
+        數量：<i class="material-icons" @click="quantity > 1 ? quantity-- : 1"
+          >indeterminate_check_box</i
+        >{{ quantity }}<i class="material-icons" @click="quantity++">add_box</i>
       </h1>
+      <div>
+        <h1>備註：</h1>
+        <div v-for="marker in arrayMarker" :key="marker.id">
+          <div class="marker-list" @click="marker.checked = !marker.checked">
+            <i
+              class="material-icons"
+              v-text="marker.checked ? 'check_box' : 'check_box_outline_blank'"
+            ></i>
+            <h1>{{ marker.value }}</h1>
+          </div>
+        </div>
+      </div>
+      <button @click="send">送出</button>
     </div>
   </div>
 </template>
@@ -57,7 +164,7 @@ export default {
 .content {
   max-height: 90%;
   overflow: auto;
-  width: 500px;
+  width: 600px;
   background: #fff;
   display: flex;
   flex-direction: column;
@@ -67,14 +174,14 @@ export default {
     0 3px 20px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
   border-bottom: 1px solid rgba(153, 153, 153, 0.3);
   border-radius: 6px;
-  padding: 30px 40px;
+  padding: 30px 90px 50px 90px;
 }
 
 h1 {
   font-size: 30px;
-}
-h1:not(:first-child) {
   margin-top: 20px;
+  display: flex;
+  align-items: center;
 }
 
 .close-content {
@@ -86,7 +193,43 @@ h1:not(:first-child) {
 }
 
 i {
-  font-size: 40px;
+  font-size: 50px;
   cursor: pointer;
+}
+
+.quantity i {
+  margin: 0 15px;
+}
+
+.marker-list i {
+  margin-right: 20px;
+}
+
+.marker-list {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  cursor: pointer;
+  padding: 10px 0;
+}
+
+button {
+  box-shadow: none;
+  width: 100%;
+  background: var(--confirm-color);
+  color: var(--font-color);
+  border: none;
+  border-radius: 3px;
+  position: relative;
+  padding: 10px 0;
+  font-size: 30px;
+  letter-spacing: 0;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  margin-top: 30px;
+}
+
+button:hover {
+  background: var(--confirm-hover);
 }
 </style>

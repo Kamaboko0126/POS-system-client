@@ -1,15 +1,16 @@
 <template>
   <section>
-    <LoginCheck />
+    <!-- <LoginCheck /> -->
+    歡迎使用美食棧點餐系統
   </section>
 </template>
 
 <script>
-import LoginCheck from "../components/UserStatus/LoginCheck.vue";
+// import LoginCheck from "../components/UserStatus/LoginCheck.vue";
 export default {
   name: "HomePage",
   components: {
-    LoginCheck,
+    // LoginCheck,
   },
   setup() {
     return {};

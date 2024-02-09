@@ -55,6 +55,7 @@ export default {
       if (isAdding.value) {
         isProcessing.value = false;
       } else {
+        console.log(id.value);
         deleteClass(id.value);
       }
       isAdding.value = false;
@@ -65,7 +66,7 @@ export default {
     const addClass = async (name) => {
       try {
         const response = await axios.post(
-          "http://127.0.0.1:10000/addmenuclass",
+          "http://127.0.0.1:10000/class/add",
           {
             order_id: classNum.value + 1,
             menu_class: name,
@@ -92,16 +93,8 @@ export default {
     //刪除類別
     const deleteClass = async (id) => {
       try {
-        const response = await axios.post(
-          "http://127.0.0.1:10000/delmenuclass",
-          {
-            id: id,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
+        const response = await axios.delete(
+          `http://127.0.0.1:10000/class/del/${id}`
         );
         if (response.data.message === "success") {
           isProcessing.value = false;
@@ -117,8 +110,8 @@ export default {
     //修改類別
     const editClass = async (id, name) => {
       try {
-        const response = await axios.post(
-          "http://127.0.0.1:10000/editmenuclass",
+        const response = await axios.put(
+          "http://127.0.0.1:10000/class/edit",
           {
             menu_class: name,
             id: id,
@@ -162,7 +155,12 @@ export default {
           <h1>類別名稱：</h1>
           <i class="material-icons" @click="showAlert = !showAlert">close</i>
         </div>
-        <input type="text" placeholder="請輸入類別名稱" v-model="inputText" />
+        <input
+          type="text"
+          placeholder="請輸入類別名稱"
+          v-model="inputText"
+          @keypress.enter="confirm"
+        />
       </div>
       <div class="buttons">
         <button class="del" @click="del" :disabled="isProcessing">

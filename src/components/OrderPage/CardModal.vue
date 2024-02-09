@@ -12,8 +12,7 @@ export default {
     const store = useStore();
     const allItems = ref(store.state.allItems);
     const currentItem = inject("currentItem");
-    const showAlert = ref(false);
-    provide("showAlert", showAlert);
+    const showAlert = inject('showAlert');
     const classNum = inject("classNum");
     const currentOrder = inject("currentOrder");
     const arrayMarker = ref([]);
@@ -51,7 +50,7 @@ export default {
   <div class="cards-content">
     <div class="card-body" v-if="classNum == 0">請先前往編輯頁面</div>
     <div class="card-body" v-if="classNum != 0 && currentItem.length == 0">
-      請先前往編輯頁面
+      無
     </div>
 
     <v-draggable v-model="currentItem" tag="ul" :disabled="true" itemKey="id">

@@ -14,9 +14,6 @@ export default {
     const store = useStore();
     const allItems = ref(store.state.allItems);
     const currentItem = inject("currentItem");
-    const isEditing = inject("isCardEditing");
-    provide("isCardEditing", isEditing);
-    const isClassEditing = inject("isClassEditing");
     const showAlert = ref(false);
     provide("showAlert", showAlert);
     const isAdding = ref(false);
@@ -45,46 +42,32 @@ export default {
 
     //點擊card
     const selectItem = (id, name, price, marker) => {
-      if (isEditing.value) {
-        if (id === "add") {
-          showAlert.value = true;
-          isAdding.value = true;
-          itemId.value = "";
-          itemName.value = "";
-          itemPrice.value = "";
+      if (id === "add") {
+        showAlert.value = true;
+        isAdding.value = true;
+        itemId.value = "";
+        itemName.value = "";
+        itemPrice.value = "";
+        arrayMarker.value = [];
+      } else {
+        isAdding.value = false;
+        itemId.value = id;
+        itemPrice.value = price;
+        itemName.value = name;
+        // console.log(marker);
+        if (marker == "") {
           arrayMarker.value = [];
         } else {
-          isAdding.value = false;
-          itemId.value = id;
-          itemPrice.value = price;
-          itemName.value = name;
-          // console.log(marker);
-          if (marker == "") {
-            arrayMarker.value = [];
-          } else {
-            try {
-              // console.log(marker);
-              // console.log(JSON.parse(marker));
-              arrayMarker.value = JSON.parse(marker);
-            } catch (e) {
-              console.error("Invalid JSON string:", marker);
-            }
+          try {
+            // console.log(marker);
+            // console.log(JSON.parse(marker));
+            arrayMarker.value = JSON.parse(marker);
+          } catch (e) {
+            console.error("Invalid JSON string:", marker);
           }
-
-          showAlert.value = true;
         }
-      } else {
-        // console.log(id, name, price, marker);
-      }
-    };
 
-    //點擊編輯
-    const editing = () => {
-      if (isEditing.value) {
-        isEditing.value = false;
-      } else {
-        isEditing.value = true;
-        isClassEditing.value = false;
+        showAlert.value = true;
       }
     };
 
@@ -103,8 +86,8 @@ export default {
 
       const jsonData = JSON.stringify(toRaw(data));
       try {
-        const response = await axios.post(
-          "http://127.0.0.1:10000/changeitemorder",
+        const response = await axios.put(
+          "http://127.0.0.1:10000/item/changeorder",
           {
             table_id: currentId.value,
             data: jsonData,
@@ -125,7 +108,6 @@ export default {
     };
     return {
       currentItem,
-      isEditing,
       showAlert,
       itemName,
       itemPrice,
@@ -134,7 +116,6 @@ export default {
       classNum,
       currentMode,
       handleDragEnd,
-      editing,
       selectItem,
     };
   },
@@ -145,33 +126,18 @@ export default {
 <template>
   <CardAlert v-if="showAlert" />
   <div class="cards-content">
+    <div class="card-body" v-if="classNum == 0">請先新增類別</div>
     <div
       class="card-body"
-      @click="editing"
-      :class="{ editing: isEditing }"
-      v-if="classNum != 0 && currentMode == 'edit'"
-    >
-      編輯
-    </div>
-    <div class="card-body" v-if="classNum == 0">點擊編輯以新增類別</div>
-    <div
-      class="card-body"
-      v-if="classNum != 0 && currentItem.length == 0 && !isEditing"
-    >
-      點擊編輯以新增品項
-    </div>
-    <div
-      class="card-body"
-      v-if="isEditing"
       @click="selectItem('add', '', '', '')"
+      v-if="classNum != 0"
     >
       + 新增
-      <i class="material-icons" v-if="isEditing">edit</i>
+      <i class="material-icons">edit</i>
     </div>
     <v-draggable
       v-model="currentItem"
       tag="ul"
-      :disabled="!isEditing"
       itemKey="id"
       @end="handleDragEnd"
     >
@@ -181,9 +147,7 @@ export default {
           @click="selectItem(Item.id, Item.name, Item.price, Item.marker)"
         >
           <li>
-            <p>
-              {{ Item.name }}<i class="material-icons" v-if="isEditing">edit</i>
-            </p>
+            <p>{{ Item.name }}<i class="material-icons">edit</i></p>
             <p>{{ Item.price }}</p>
           </li>
         </div>

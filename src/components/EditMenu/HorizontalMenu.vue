@@ -106,8 +106,8 @@ export default {
       // console.log(data);
       const jsonData = JSON.stringify(toRaw(data));
       try {
-        const response = await axios.post(
-          "http://127.0.0.1:10000/changeclassorder",
+        const response = await axios.put(
+          "http://127.0.0.1:10000/class/changeorder",
           {
             data: jsonData,
           },

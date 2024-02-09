@@ -1,13 +1,13 @@
 <script>
 import HeaderItem from "./components/HeaderItem.vue";
-import FooterItem from "./components/FooterItem.vue";
+// import FooterItem from "./components/FooterItem.vue";
 import MenuItem from "./components/MenuItem.vue";
 import { ref, provide } from "vue";
 export default {
   name: "App",
   components: {
     HeaderItem,
-    FooterItem,
+    // FooterItem,
     MenuItem,
   },
   setup() {
@@ -36,7 +36,7 @@ export default {
     <router-view></router-view>
     <MenuItem />
   </div>
-  <FooterItem hidden />
+  <!-- <FooterItem hidden /> -->
 </template>
 
 <style>
@@ -47,8 +47,8 @@ export default {
   --horizontal-menu-height: 95px;
   --main-color: #89a1b1;
   --main-hover: #95abb9;
-  --second-color:#bf8291;
-  --second-hover:rgb(199, 145, 157);
+  --second-color: #bf8291;
+  --second-hover: rgb(199, 145, 157);
   --font-color: #fff;
   --confirm-color: #5eab6d;
   --confirm-hover: #69bb7a;
@@ -62,7 +62,6 @@ export default {
   padding: 0;
   box-sizing: border-box;
 }
-
 
 button:disabled,
 button:disabled:hover {

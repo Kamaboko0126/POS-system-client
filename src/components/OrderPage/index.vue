@@ -24,6 +24,18 @@ export default {
     OrderTable,
   },
   setup() {
+    const showAlert = ref(false);
+    provide("showAlert", showAlert);
+
+    const isEditingOrder = ref(false);
+    provide("isEditingOrder", isEditingOrder);
+
+    const editOrderId = ref("");
+    provide("editOrderId", editOrderId);
+
+    const editOrderQuantity = ref(0);
+    provide("editOrderQuantity", editOrderQuantity);
+
     const currentId = ref("");
     provide("currentId", currentId);
 
@@ -35,6 +47,9 @@ export default {
 
     const currentOrder = ref({});
     provide("currentOrder", currentOrder);
+
+    const lists = ref([]);
+    provide("lists", lists);
 
     return {};
   },

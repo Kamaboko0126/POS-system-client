@@ -1,7 +1,7 @@
 <template>
   <section>
-    <HorizontalMenu :mode="'edit'"/>
-    <CardModal :mode="'edit'"/>
+    <HorizontalMenu :mode="'edit'" />
+    <CardModal :mode="'edit'" />
   </section>
 </template>
 
@@ -23,7 +23,7 @@ export default {
     const isClassEditing = ref(false);
     provide("isClassEditing", isClassEditing);
 
-    const isCardEditing = ref(false);
+    const isCardEditing = ref(true);
     provide("isCardEditing", isCardEditing);
 
     const currentItem = ref([]);
