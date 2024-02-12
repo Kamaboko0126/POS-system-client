@@ -1,7 +1,7 @@
 <template>
   <section>
     <!-- <LoginCheck /> -->
-    歡迎使用美食棧點餐系統
+    <h1>歡迎使用美食棧點餐系統</h1>
   </section>
 </template>
 
@@ -22,5 +22,10 @@ export default {
 section {
   /* background: #232323; */
   height: 100%;
+}
+
+h1{
+  font-size: 30px;
+  margin-top: 50px;
 }
 </style>

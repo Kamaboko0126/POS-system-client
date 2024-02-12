@@ -6,7 +6,7 @@ export default {
   setup() {
     const store = useStore();
     const allItems = ref(store.state.allItems);
-    const currentId = inject("currentId");
+    const currentId = ref("");
     const currentItem = inject("currentItem");
 
     // 使用 ref 來創建一個響應式變量
@@ -52,11 +52,6 @@ export default {
             currentItem.value = toRaw(allItems.value[menuClasses.value[0].id]);
             return;
           });
-          return;
-        } else {
-          currentId.value = "";
-          currentItem.value = [];
-          return;
         }
       } else {
         currentId.value = id;

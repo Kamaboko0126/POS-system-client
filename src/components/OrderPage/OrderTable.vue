@@ -1,63 +1,112 @@
 <script>
 import { inject, ref } from "vue";
+import axios from "axios";
 
 export default {
   name: "OrderTable",
   setup() {
-    const currentOrder = inject("currentOrder");
     const orderingMethod = ref("內用");
-    const payment = ref("");
-    const isDescount = ref("否");
+    const payment = ref("已付款");
+    const isDescount = ref(false);
 
     const lists = inject("lists");
 
     const isEditingOrder = inject("isEditingOrder");
 
-    const editOrderId = inject("editOrderId");
+    const currentOrder = inject("currentOrder");
 
-    const editOrderQuantity = inject("editOrderQuantity");
-
+    //上方選擇訂購方式、付款狀態、員工價
     const selectMethod = (method) => {
       if (method === "已付款" || method === "未付款") {
         payment.value = method;
-      } else if (method === "電話" || method === "外帶" || method === "內用" || method === "門口") {
+      } else if (
+        method === "電話" ||
+        method === "外帶" ||
+        method === "內用" ||
+        method === "門口"
+      ) {
         if (method === "電話") {
           console.log("電話");
         }
         orderingMethod.value = method;
-      } else if (method === "是" || method === "否") {
+      } else if (method == true || method == false) {
         isDescount.value = method;
       }
     };
 
-    const send = () => {
-      console.log(orderingMethod.value);
-      console.log(payment.value);
-      console.log(isDescount.value);
-      console.log(lists.value);
-      const order = {
-        orderingMethod: orderingMethod.value,
-        payment: payment.value,
-        isDescount: isDescount.value,
-        lists: lists.value,
-      };
-      console.log(order);
-      console.log(lists.value);
+    //送出訂單
+    const send = async () => {
+      lists.value.forEach((item) => {
+        delete item.checkedMarkers;
+      });
+      //訂單為null
+      if (lists.value.length === 0) {
+        alert("請選擇商品");
+        return;
+      } else if (payment.value === "") {
+        alert("請選擇訂購方式");
+        return;
+      }
+
+      try {
+        const response = await axios.post(
+          "http://127.0.0.1:10000/order/add",
+          {
+            is_discount: isDescount.value,
+            lists: JSON.stringify(lists.value),
+            order_id: "o" + Date.now().toString(),
+            ordering_method: orderingMethod.value,
+            payment: payment.value,
+            phone: "09-XXXXXXXX",
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (response.data.message === "success") {
+          console.log("新增成功");
+          lists.value = [];
+          // payment.value = "";
+        }
+      } catch (error) {
+        console.error(error);
+      }
+      // console.log(lists.value);
     };
 
-    const editOrder = (id,quantity) => {
+    //編輯訂單
+    const editOrder = (id, name, price, quantity, markers) => {
       isEditingOrder.value = true;
-      editOrderId.value = id;
-      editOrderQuantity.value = quantity;
+      currentOrder.value.id = id;
+      currentOrder.value.name = name;
+      currentOrder.value.price = price;
+      currentOrder.value.quantity = quantity;
+      currentOrder.value.markers = markers;
+      // console.log(markers);
     };
 
+    //刪除訂單
     const delOrder = (id) => {
       const index = lists.value.findIndex((list) => list.id === id);
       lists.value.splice(index, 1);
     };
 
+    const check = () => {
+      const testData = {
+        order_id: "o" + Date.now().toString(),
+        ordering_method: orderingMethod.value,
+        payment: payment.value,
+        is_discount: isDescount.value,
+        phone: "",
+        lists: lists.value,
+      };
+      console.log(testData);
+      console.log(lists.value);
+    };
+
     return {
-      currentOrder,
       orderingMethod,
       payment,
       isDescount,
@@ -66,6 +115,7 @@ export default {
       send,
       editOrder,
       delOrder,
+      check,
     };
   },
 };
@@ -124,15 +174,12 @@ export default {
         <p>員 工 價 ：</p>
         <div class="buttons">
           <button
-            @click="selectMethod('否')"
-            :class="{ current: isDescount == '否' }"
+            @click="selectMethod(false)"
+            :class="{ current: !isDescount }"
           >
             否
           </button>
-          <button
-            @click="selectMethod('是')"
-            :class="{ current: isDescount == '是' }"
-          >
+          <button @click="selectMethod(true)" :class="{ current: isDescount }">
             是
           </button>
         </div>
@@ -149,7 +196,19 @@ export default {
         </div>
         <div class="list-body" v-for="list in lists" :key="list.id">
           <div class="item-icon">
-            <i class="material-icons edit" @click="editOrder(list.id,list.quantity)">edit</i>
+            <i
+              class="material-icons edit"
+              @click="
+                editOrder(
+                  list.id,
+                  list.name,
+                  list.price,
+                  list.quantity,
+                  list.markers
+                )
+              "
+              >edit</i
+            >
             <i class="material-icons delete" @click="delOrder(list.id)"
               >delete</i
             >
@@ -160,7 +219,7 @@ export default {
           <div class="markers">
             <p
               class="item-marker"
-              v-for="marker in list.markers"
+              v-for="marker in list.checkedMarkers"
               :key="marker.id"
             >
               {{ marker }}
@@ -172,6 +231,7 @@ export default {
     </div>
     <div class="bottom">
       <button @click="send">送出</button>
+      <!-- <button @click="check">檢查</button> -->
     </div>
   </div>
 </template>
@@ -246,7 +306,7 @@ export default {
   flex-shrink: 0;
 }
 
-.buttons{
+.buttons {
   display: flex;
   flex-shrink: 0;
 }
@@ -312,6 +372,7 @@ button {
 
 .markers {
   display: flex;
+  flex-shrink: 0;
 }
 
 .markers .item-marker:last-child span {

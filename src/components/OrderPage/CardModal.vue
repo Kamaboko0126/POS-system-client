@@ -1,5 +1,5 @@
 <script>
-import { ref, watch, inject, provide } from "vue";
+import { ref, watch, inject } from "vue";
 import { useStore } from "vuex";
 import AlertOrder from "../OrderPage/AlertOrder.vue";
 
@@ -15,8 +15,6 @@ export default {
     const showAlert = inject('showAlert');
     const classNum = inject("classNum");
     const currentOrder = inject("currentOrder");
-    const arrayMarker = ref([]);
-    provide("arrayMarker", arrayMarker);
 
     // 監控 items 的變化
     watch(
@@ -26,14 +24,9 @@ export default {
       }
     );
     //點擊card
-    const selectItem = (id, name, price, marker) => {
+    const selectItem = (id, name, price, markers) => {
       showAlert.value = true;
-      currentOrder.value = { id, name, price };
-      arrayMarker.value = [];
-      const data = marker ? JSON.parse(marker) : [];
-      for (let i = 0; i < data.length; i++) {
-        arrayMarker.value.push(data[i]);
-      }
+      currentOrder.value = { id, name, price, markers };
     };
 
     return {

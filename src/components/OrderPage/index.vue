@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { ref, provide } from "vue";
+import { ref, provide, watch } from "vue";
 import HorizontalMenu from "../OrderPage/HorizontalMenu.vue";
 import CardModal from "../OrderPage/CardModal.vue";
 import OrderTable from "../OrderPage/OrderTable.vue";
@@ -24,32 +24,36 @@ export default {
     OrderTable,
   },
   setup() {
+    //for AlertOrder, CardModal, OrderTable
     const showAlert = ref(false);
     provide("showAlert", showAlert);
 
+    //for OrderTable, AlertOrder
     const isEditingOrder = ref(false);
     provide("isEditingOrder", isEditingOrder);
 
-    const editOrderId = ref("");
-    provide("editOrderId", editOrderId);
-
-    const editOrderQuantity = ref(0);
-    provide("editOrderQuantity", editOrderQuantity);
-
-    const currentId = ref("");
-    provide("currentId", currentId);
-
+    //for HorziontalMenu, CardModal
     const currentItem = ref([]);
     provide("currentItem", currentItem);
 
+    //for HorziontalMenu, CardModal
     const classNum = ref(0);
     provide("classNum", classNum);
 
+    //for CardModal, AlertOrder
     const currentOrder = ref({});
     provide("currentOrder", currentOrder);
 
+    //for OrderTable, AlertOrder
     const lists = ref([]);
     provide("lists", lists);
+
+    watch(
+      () => lists.value,
+      (newVal) => {
+        console.log(newVal);
+      }
+    );
 
     return {};
   },

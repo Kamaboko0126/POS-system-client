@@ -107,7 +107,7 @@ export default {
           "http://127.0.0.1:10000/item/add",
           {
             table_id: table_id.value,
-            id: "t" + Date.now().toString(),
+            id: "i" + Date.now().toString(),
             name: itemName.value,
             price: itemPrice.value,
             marker: "",
@@ -164,7 +164,7 @@ export default {
       }
       if (!isAdding.value) {
         arrayMarker.value.push({
-          id: "t" + Date.now().toString(),
+          id: "m" + Date.now().toString(),
           value: inputMarker.value,
         });
         const string = JSON.stringify(arrayMarker.value);

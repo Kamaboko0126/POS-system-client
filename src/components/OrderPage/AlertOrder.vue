@@ -5,28 +5,24 @@ export default {
   setup() {
     const showAlert = inject("showAlert");
     const currentOrder = inject("currentOrder");
-    const arrayMarker = inject("arrayMarker");
     const quantity = ref(1);
     const lists = inject("lists");
     const isEditingOrder = inject("isEditingOrder");
-    const editOrderId = inject("editOrderId");
-    const editOrderQuantity = inject("editOrderQuantity");
+    // const editOrderId = inject("editOrderId");
+    const arrayMarker = ref([]);
 
     const checkedMarkers = computed(() => {
       return arrayMarker.value.filter((marker) => marker.checked);
     });
 
     watch(
-      () => lists.value,
-      (newVal) => {
-        console.log(newVal);
-      }
-    );
-
-    watch(
       () => currentOrder.value,
       () => {
-        quantity.value = 1;
+        quantity.value = currentOrder.quantity ? currentOrder.quantity : 1;
+        // console.log(currentOrder.value);
+        arrayMarker.value = currentOrder.value.markers
+          ? JSON.parse(currentOrder.value.markers)
+          : [];
       }
     );
 
@@ -35,7 +31,10 @@ export default {
       (newVal) => {
         if (newVal) {
           showAlert.value = true;
-          quantity.value = editOrderQuantity.value;
+          quantity.value = currentOrder.value.quantity;
+          arrayMarker.value = currentOrder.value.markers
+            ? JSON.parse(currentOrder.value.markers)
+            : [];
         }
       }
     );
@@ -44,51 +43,58 @@ export default {
       showAlert.value = false;
       if (isEditingOrder.value) {
         isEditingOrder.value = false;
-        console.log(lists.value)
+        // console.log(lists.value);
       }
     };
 
     //送出
     const send = () => {
+      //新訂單
       if (!isEditingOrder.value) {
-        const markers = [];
+        const checkedData = [];
         for (let i = 0; i < checkedMarkers.value.length; i++) {
-          markers.push(checkedMarkers.value[i].value);
+          checkedData.push(checkedMarkers.value[i].value);
         }
 
-        const data = {
-          id: "t" + Date.now().toString(),
+        const listData = {
+          id: "l" + Date.now().toString(),
           name: currentOrder.value.name,
           price: currentOrder.value.price,
           quantity: quantity.value,
-          markers: markers,
-          allMarkers: arrayMarker.value,
+          markers: JSON.stringify(arrayMarker.value),
+          checkedMarkers: checkedData,
         };
 
+        //尋找lists中是否有相同名稱&&marker的品項
         const existingItem = lists.value.find(
           (item) =>
-            item.name === data.name &&
-            JSON.stringify(item.markers) === JSON.stringify(data.markers)
+            item.name === listData.name &&
+            JSON.stringify(item.checkedMarkers) === 
+              JSON.stringify(listData.checkedMarkers)
         );
 
+        //若有則數量增加
         if (existingItem) {
-          existingItem.quantity += data.quantity;
+          existingItem.quantity += listData.quantity;
+          //沒有就新增
         } else {
-          lists.value.push(data);
+          lists.value.push(listData);
         }
 
         showAlert.value = false;
       } else {
+        //編輯原有訂單
         const itemToEdit = lists.value.find(
-          (item) => item.id === editOrderId.value
+          (item) => item.id === currentOrder.value.id
         );
         if (itemToEdit) {
           itemToEdit.quantity = quantity.value;
-          const markers = [];
+          const checked_markers = [];
           for (let i = 0; i < checkedMarkers.value.length; i++) {
-            markers.push(checkedMarkers.value[i].value);
+            checked_markers.push(checkedMarkers.value[i].value);
           }
-          itemToEdit.markers = markers;
+          itemToEdit.checkedMarkers = checked_markers;
+          itemToEdit.markers = JSON.stringify(arrayMarker.value);
           showAlert.value = false;
           isEditingOrder.value = false;
         } else {
@@ -96,13 +102,6 @@ export default {
         }
       }
     };
-
-    watch(
-      () => currentOrder,
-      (newVal) => {
-        console.log(newVal);
-      }
-    );
 
     return {
       showAlert,

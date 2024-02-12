@@ -17,13 +17,17 @@ export default {
         name: "查看營收",
         path: "/revenue",
       },
+      // {
+      //   name: "編輯管理者帳密",
+      //   path: "/editadmin",
+      // },
+      // {
+      //   name: "登出",
+      //   path: "/logout",
+      // },
       {
-        name: "編輯管理者帳密",
-        path: "/editadmin",
-      },
-      {
-        name: "登出",
-        path: "/logout",
+        name: "餐點頁面",
+        path: "/orderlist",
       },
     ]);
     const isMenuShow = inject("isMenuShow");

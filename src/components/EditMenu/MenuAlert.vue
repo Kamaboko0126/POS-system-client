@@ -70,7 +70,7 @@ export default {
           {
             order_id: classNum.value + 1,
             menu_class: name,
-            id: "t" + Date.now().toString(),
+            id: "c" + Date.now().toString(),
           },
           {
             headers: {
