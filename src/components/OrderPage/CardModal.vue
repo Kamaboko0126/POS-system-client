@@ -12,7 +12,7 @@ export default {
     const store = useStore();
     const allItems = ref(store.state.allItems);
     const currentItem = inject("currentItem");
-    const showAlert = inject('showAlert');
+    const showAlert = inject("showAlert");
     const classNum = inject("classNum");
     const currentOrder = inject("currentOrder");
 
@@ -85,10 +85,10 @@ ul {
 }
 
 .card-body {
-  width: 300px;
-  height: 135px;
+  width: 260px;
+  height: 115px;
   border-radius: 4px;
-  font-size: 30px;
+  font-size: var(--main-font-size);
   color: #fff;
   margin: 15px;
   background: var(--main-color);

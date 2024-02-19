@@ -133,10 +133,10 @@ ul {
 
 li {
   background: var(--main-color);
-  padding: 20px 25px;
+  padding: 15px 22px;
   border-radius: 5px;
-  font-size: 30px;
-  font-weight: bold;
+  font-size: var(--main-font-size);
+  /* font-weight: 500; */
   color: var(--font-color);
   cursor: pointer;
   margin: 0 10px;

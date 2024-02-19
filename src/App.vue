@@ -41,10 +41,10 @@ export default {
 
 <style>
 :root {
-  --header-height: 65px;
+  --header-height: 55px;
   --header-color: #41546a;
   --second-header-color: #866069;
-  --horizontal-menu-height: 95px;
+  --horizontal-menu-height: 80px;
   --main-color: #89a1b1;
   --main-hover: #95abb9;
   --second-color: #bf8291;
@@ -55,12 +55,14 @@ export default {
   --cancel-color: #e13c30;
   --cancel-hover: #f85a4c;
   --disabled-color: #bdc3c7;
+  --main-font-size: 25px;
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-weight: 500;
 }
 
 button:disabled,

@@ -1,12 +1,18 @@
 <script>
-import { inject, ref } from "vue";
+import { inject, provide, ref } from "vue";
 import axios from "axios";
+import AlertWindow from "./AlertWindow.vue";
 
 export default {
   name: "OrderTable",
+  components: {
+    AlertWindow,
+  },
   setup() {
     const orderingMethod = ref("內用");
+
     const payment = ref("已付款");
+
     const isDescount = ref(false);
 
     const lists = inject("lists");
@@ -14,6 +20,21 @@ export default {
     const isEditingOrder = inject("isEditingOrder");
 
     const currentOrder = inject("currentOrder");
+
+    const pickUpTime = ref([1,2,3,4]);
+    provide("pickUpTime", pickUpTime);
+
+    const showAlert = ref(false);
+    provide("showAlert", showAlert);
+
+    const date = new Date();
+    const year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+
+    // 確保月份和日期都是兩位數
+    month = month < 10 ? "0" + month : month;
+    day = day < 10 ? "0" + day : day;
 
     //上方選擇訂購方式、付款狀態、員工價
     const selectMethod = (method) => {
@@ -58,6 +79,8 @@ export default {
             ordering_method: orderingMethod.value,
             payment: payment.value,
             phone: "09-XXXXXXXX",
+            date: "d" + year + month + day,
+            pick_up_time: "",
           },
           {
             headers: {
@@ -116,12 +139,15 @@ export default {
       editOrder,
       delOrder,
       check,
+      pickUpTime,
+      showAlert,
     };
   },
 };
 </script>
 
 <template>
+  <AlertWindow />
   <div class="order-content">
     <div class="top">
       <div class="col">
@@ -150,6 +176,17 @@ export default {
             :class="{ current: orderingMethod == '門口' }"
           >
             門口
+          </button>
+        </div>
+      </div>
+      <div class="col">
+        <p>取餐時間：</p>
+        <div class="buttons">
+          <button
+            @click="showAlert = true"
+            :class="{ pickup: pickUpTime != '' }"
+          >
+            {{ pickUpTime == "" ? "立即" : pickUpTime }}
           </button>
         </div>
       </div>
@@ -275,7 +312,7 @@ export default {
   flex-direction: column;
   align-items: start;
   justify-content: start;
-  height: 250px;
+  height: 275px;
   width: 100%;
   overflow: auto;
   flex-shrink: 0;
@@ -301,7 +338,7 @@ export default {
 }
 
 .col p {
-  font-size: 28px;
+  font-size: var(--main-font-size);
   color: var(--font-color);
   flex-shrink: 0;
 }
@@ -319,8 +356,8 @@ button {
   border-radius: 3px;
   position: relative;
   padding: 8px 26px;
+  font-size: var(--main-font-size);
   margin: 5px 10px;
-  font-size: 28px;
   letter-spacing: 0;
   cursor: pointer;
   transition: all 0.3s ease-in-out;
@@ -351,7 +388,7 @@ button {
 }
 
 .list-body p {
-  font-size: 26px;
+  font-size: var(--main-font-size);
   flex-shrink: 0;
 }
 
@@ -385,11 +422,16 @@ button {
 .bottom button {
   width: 100%;
   margin: 20px 0 0 0;
+  font-size: var(--main-font-size);
   padding: 8px 0;
-  font-size: 30px;
 }
 
 .bottom button:hover {
+  background: var(--second-color);
+  color: var(--font-color);
+}
+
+.pickup {
   background: var(--second-color);
   color: var(--font-color);
 }
