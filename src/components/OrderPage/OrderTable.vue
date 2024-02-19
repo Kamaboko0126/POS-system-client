@@ -2,11 +2,13 @@
 import { inject, provide, ref } from "vue";
 import axios from "axios";
 import AlertWindow from "./AlertWindow.vue";
+import HistoryList from "./HistoryList.vue";
 
 export default {
   name: "OrderTable",
   components: {
     AlertWindow,
+    HistoryList,
   },
   setup() {
     const orderingMethod = ref("內用");
@@ -24,8 +26,11 @@ export default {
     const pickUpTime = ref("");
     provide("pickUpTime", pickUpTime);
 
-    const showAlert = ref(true);
+    const showAlert = ref(false);
     provide("showAlert", showAlert);
+
+    const showHistory = ref(false);
+    provide("showHistory", showHistory);
 
     const date = new Date();
     const year = date.getFullYear();
@@ -91,6 +96,7 @@ export default {
         if (response.data.message === "success") {
           console.log("新增成功");
           lists.value = [];
+          pickUpTime.value = "";
           // payment.value = "";
         }
       } catch (error) {
@@ -141,6 +147,7 @@ export default {
       check,
       pickUpTime,
       showAlert,
+      showHistory,
     };
   },
 };
@@ -271,6 +278,7 @@ export default {
       <!-- <button @click="check">檢查</button> -->
     </div>
   </div>
+  <HistoryList v-if="showHistory" />
 </template>
 
 <style scoped>

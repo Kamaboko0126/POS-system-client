@@ -27,7 +27,7 @@ export default {
     });
 
     const getOrderData = async () => {
-      console.log("get data");
+      // console.log("get data");
       let date = new Date();
       let day = String(date.getDate()).padStart(2, "0");
       let month = String(date.getMonth() + 1).padStart(2, "0"); // January is 0!
@@ -37,7 +37,7 @@ export default {
       const response = await axios.get(
         `http://127.0.0.1:10000/orderlist/get/${today}`
       );
-      console.log(response.data);
+      // console.log(response.data);
       for (let i = 0; i < response.data.length; i++) {
         response.data[i].lists = response.data[i].lists
           ? JSON.parse(response.data[i].lists)
@@ -59,7 +59,7 @@ export default {
         );
         // console.log(response)
         if (response.data.message === "success") {
-          console.log("success");
+          // console.log("success");
           getOrderData();
         }
       } catch (error) {
@@ -76,6 +76,9 @@ export default {
 </script>
 
 <template>
+  <div class="history">
+    <i class="material-icons">history</i>
+  </div>
   <div class="cards">
     <v-draggable v-model="arrayOrder" tag="ul" :disabled="false" itemKey="id">
       <template #item="{ element: order }">
@@ -90,7 +93,12 @@ export default {
             <!-- <h3>{{ order.is_discount ? "員工價：是" : "員工價：否" }}</h3> -->
             <h3>{{ "訂購方式：" + order.ordering_method }}</h3>
             <h3>{{ "訂購時間：" + order.order_time }}</h3>
-            <h3>{{ "取餐時間：" + (order.pick_up_time == "" ? "無" : order.pick_up_time) }}</h3>
+            <h3>
+              {{
+                "取餐時間：" +
+                (order.pick_up_time == "" ? "無" : order.pick_up_time)
+              }}
+            </h3>
             <!-- <h3>{{ "付款狀態：" + order.payment }}</h3> -->
             <!-- <h3>{{ order.phone == "09-XXXXXXXX" ? "" : order.phone }}</h3> -->
             <!-- <h3>{{ order.is_finished ? "結單狀態：是" : "結單狀態：否" }}</h3> -->
@@ -244,5 +252,18 @@ export default {
   font-size: 20px;
   margin: 0 7px 0 0;
   padding: 0;
+}
+
+.history i {
+  position: fixed;
+  right: 30px;
+  top: calc(var(--header-height) + 30px);
+  font-size: 50px;
+  background: var(--header-color);
+  color: #ffffff;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+  border-radius: 50%;
+  padding: 5px;
 }
 </style>
