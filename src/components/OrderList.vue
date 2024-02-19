@@ -89,7 +89,8 @@ export default {
           <div class="infos">
             <!-- <h3>{{ order.is_discount ? "員工價：是" : "員工價：否" }}</h3> -->
             <h3>{{ "訂購方式：" + order.ordering_method }}</h3>
-            <h3>{{ "訂購時間：none" }}</h3>
+            <h3>{{ "訂購時間：" + order.order_time }}</h3>
+            <h3>{{ "取餐時間：" + (order.pick_up_time == "" ? "無" : order.pick_up_time) }}</h3>
             <!-- <h3>{{ "付款狀態：" + order.payment }}</h3> -->
             <!-- <h3>{{ order.phone == "09-XXXXXXXX" ? "" : order.phone }}</h3> -->
             <!-- <h3>{{ order.is_finished ? "結單狀態：是" : "結單狀態：否" }}</h3> -->

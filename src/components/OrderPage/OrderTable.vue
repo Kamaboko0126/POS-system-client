@@ -21,10 +21,10 @@ export default {
 
     const currentOrder = inject("currentOrder");
 
-    const pickUpTime = ref([1,2,3,4]);
+    const pickUpTime = ref("");
     provide("pickUpTime", pickUpTime);
 
-    const showAlert = ref(false);
+    const showAlert = ref(true);
     provide("showAlert", showAlert);
 
     const date = new Date();

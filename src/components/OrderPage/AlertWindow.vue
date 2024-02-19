@@ -1,22 +1,74 @@
 <script>
-import { inject } from "vue";
+import { ref, inject } from "vue";
 
 export default {
   setup() {
-    const pickUpTime = inject('pickUpTime');
+    const currentTime = ref([]);
+    const pickUpTime = inject("pickUpTime");
     const showAlert = inject("showAlert");
 
     const setPickUpTime = () => {};
 
     const clickNumber = (int) => {
-      console.log(int);
+      if (int === "Del") {
+        currentTime.value = currentTime.value.slice(0, -1);
+      } else if (int === "Enter") {
+        console.log(currentTime.value.length);
+        if (currentTime.value.length == 0) {
+          currentTime.value = [];
+          pickUpTime.value = "";
+          showAlert.value = false;
+          return;
+        }else if (currentTime.value.length < 4) {
+          console.log("請輸入完整時間");
+          return;
+        }
+        pickUpTime.value = currentTime.value.join("");
+        pickUpTime.value =
+          pickUpTime.value.slice(0, 2) + ":" + pickUpTime.value.slice(2);
+        showAlert.value = false;
+      } else {
+        if (currentTime.value.length == 0) {
+          if (int > 2) {
+            return;
+          } else {
+            currentTime.value.push(int);
+          }
+        } else if (currentTime.value.length == 1) {
+          currentTime.value.push(int);
+          const time = parseInt(currentTime.value.join(""));
+          if (time > 23) {
+            currentTime.value = currentTime.value.slice(0, -1);
+            return;
+          }
+        } else if (currentTime.value.length == 2) {
+          if (int > 5) {
+            return;
+          } else {
+            currentTime.value.push(int);
+          }
+        } else if (currentTime.value.length == 3) {
+          if (int > 9) {
+            return;
+          } else {
+            currentTime.value.push(int);
+          }
+        }
+      }
+    };
+
+    const close = () => {
+      showAlert.value = false;
+      currentTime.value = pickUpTime.value ? pickUpTime.value : [];
     };
 
     return {
       pickUpTime,
       setPickUpTime,
       clickNumber,
+      close,
       showAlert,
+      currentTime,
     };
   },
 };
@@ -25,17 +77,13 @@ export default {
 <template>
   <div class="body" v-if="showAlert">
     <div class="content">
-      <div>
-        <div class="title">
-          <h1>取餐時間：</h1>
-          <i class="material-icons" @click="showAlert = !showAlert">close</i>
-        </div>
-        <div class="time-content">
-          <div class="time-number">{{ pickUpTime }}</div>
-          <div class="time-number">{{ pickUpTime }}</div>
-          <span>：</span>
-          <div class="time-number">{{ pickUpTime }}</div>
-          <div class="time-number">{{ pickUpTime }}</div>
+      <div class="title">
+        <h1>取餐時間：</h1>
+        <i class="material-icons" @click="close">close</i>
+      </div>
+      <div class="time-content">
+        <div class="time-number" v-for="time in currentTime" :key="time.id">
+          {{ time }}
         </div>
       </div>
       <div class="keyboard">
@@ -51,7 +99,7 @@ export default {
           <div class="number" @click="clickNumber(3)">3</div>
           <div class="number del" @click="clickNumber('Del')">Del</div>
           <div class="number" @click="clickNumber(0)">0</div>
-          <div class="number confirm" @click="setPickUpTime">Enter</div>
+          <div class="number confirm" @click="clickNumber('Enter')">Enter</div>
         </div>
       </div>
     </div>
@@ -87,6 +135,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
 }
 
 .title i {
@@ -178,5 +227,21 @@ input[type="text"] {
 
 .confirm:hover {
   background: var(--confirm-hover);
+}
+
+.time-content {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  margin-top: 15px;
+  height: 56px;
+}
+
+.time-number:nth-child(2)::after {
+  content: "：";
+  font-size: 40px;
+  margin-left: 5px;
 }
 </style>
