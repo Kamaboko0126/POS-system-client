@@ -6,13 +6,18 @@ export default {
   setup() {
     const menuItems = ref([
       {
-        name: "點餐頁",
+        name: "新增訂單",
         path: "/order",
+      },
+      {
+        name: "查看訂單",
+        path: "/orderlist",
       },
       {
         name: "編輯菜單",
         path: "/editmenu",
       },
+
       {
         name: "查看營收",
         path: "/revenue",
@@ -25,10 +30,6 @@ export default {
       //   name: "登出",
       //   path: "/logout",
       // },
-      {
-        name: "餐點頁面",
-        path: "/orderlist",
-      },
     ]);
     const isMenuShow = inject("isMenuShow");
 

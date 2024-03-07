@@ -7,6 +7,15 @@ export default {
     const socket = ref(null);
     const message = ref("");
     const arrayOrder = ref([]);
+    const isHistoryShow = ref(false);
+    const historyList = ref();
+
+    const date = new Date();
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // January is 0!
+    const year = date.getFullYear();
+
+    const today = "d" + year + month + day;
 
     onMounted(() => {
       getOrderData();
@@ -16,8 +25,10 @@ export default {
         if (message.value === "Order added") {
           console.log("Order added");
           getOrderData();
+          getHistoryOrder();
         }
       });
+      getHistoryOrder();
     });
 
     onUnmounted(() => {
@@ -28,12 +39,6 @@ export default {
 
     const getOrderData = async () => {
       // console.log("get data");
-      let date = new Date();
-      let day = String(date.getDate()).padStart(2, "0");
-      let month = String(date.getMonth() + 1).padStart(2, "0"); // January is 0!
-      let year = date.getFullYear();
-
-      let today = "d" + year + month + day;
       const response = await axios.get(
         `http://127.0.0.1:10000/orderlist/get/${today}`
       );
@@ -67,8 +72,23 @@ export default {
       }
     };
 
+    const getHistoryOrder = async () => {
+      try {
+        const response = await axios.get(
+          `http://127.0.0.1:10000/orderlist/history/${today}`
+        );
+        console.log(response.data);
+        historyList.value = response.data;
+        console.log(historyList.value);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
     return {
       arrayOrder,
+      isHistoryShow,
+      historyList,
       finished,
     };
   },
@@ -77,7 +97,48 @@ export default {
 
 <template>
   <div class="history">
-    <i class="material-icons">history</i>
+    <i class="material-icons" @click="isHistoryShow = !isHistoryShow"
+      >history</i
+    >
+  </div>
+  <div class="body" v-if="isHistoryShow">
+    <div class="content">
+      <div class="close-content">
+        <i class="material-icons" @click="isHistoryShow = !isHistoryShow"
+          >close</i
+        >
+      </div>
+      <div class="history-lists">
+        <div class="history-list" v-for="data in historyList" :key="data.id">
+          <div>
+            <h2>訂單編號：{{ data.index_id }}</h2>
+            <p>點餐時間：{{ data.order_time }}</p>
+            <p>訂單：{{ data.is_finished == 0 ? "尚未完成" : "已完成" }}</p>
+            <p>取餐方式：{{ data.ordering_method }}</p>
+            <p>{{ data.payment }}</p>
+            <!-- <p>{{ data.lists }}</p> -->
+            <div v-for="list in data.lists" :key="list.id">
+              <p>{{ list.id }}</p>
+              <p>{{ list.name }}</p>
+              <p>{{ list.pirce }}</p>
+              <p>{{ list.quantity }}</p>
+            </div>
+            <!-- <p>{{ data.order_id }}</p> -->
+            <p>
+              {{
+                data.pick_up_time == ""
+                  ? ""
+                  : "預定取餐時間：" + data.pick_up_time
+              }}
+            </p>
+            <p>
+              {{ data.phone == "09-XXXXXXXX" ? "" : "訂餐電話：" + data.phone }}
+            </p>
+            <p>{{ data.is_discount == 0 ? "" : "*員工價" }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="cards">
     <v-draggable v-model="arrayOrder" tag="ul" :disabled="false" itemKey="id">
@@ -265,5 +326,47 @@ export default {
   transition: 0.3s ease-in-out;
   border-radius: 50%;
   padding: 5px;
+}
+
+.body {
+  width: 100%;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  background: #00000029;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content {
+  max-height: 90%;
+  overflow: auto;
+  width: 600px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: start;
+  box-shadow: 0 10px 20px -12px rgba(0, 0, 0, 0.42),
+    0 3px 20px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(153, 153, 153, 0.3);
+  border-radius: 6px;
+  padding: 30px 90px 50px 90px;
+}
+
+.close-content {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: -50px;
+}
+
+.close-content i {
+  font-size: 50px;
+  cursor: pointer;
 }
 </style>
