@@ -24,8 +24,10 @@ export default {
       }
     );
     //點擊card
-    const selectItem = (id, name, price, markers) => {
+    const selectItem = (id, name, price, marker) => {
       showAlert.value = true;
+      const markers = marker ? JSON.parse(marker) : [];
+      // console.log(markers);
       currentOrder.value = { id, name, price, markers };
     };
 

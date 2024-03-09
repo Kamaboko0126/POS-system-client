@@ -5,7 +5,7 @@ export default {
   setup() {
     const currentTime = ref([]);
     const pickUpTime = inject("pickUpTime");
-    const showAlert = inject("showAlert");
+    const showTimer = inject("showTimer");
 
     const setPickUpTime = () => {};
 
@@ -17,7 +17,7 @@ export default {
         if (currentTime.value.length == 0) {
           currentTime.value = [];
           pickUpTime.value = "";
-          showAlert.value = false;
+          showTimer.value = false;
           return;
         }else if (currentTime.value.length < 4) {
           console.log("請輸入完整時間");
@@ -26,7 +26,7 @@ export default {
         pickUpTime.value = currentTime.value.join("");
         pickUpTime.value =
           pickUpTime.value.slice(0, 2) + ":" + pickUpTime.value.slice(2);
-        showAlert.value = false;
+        showTimer.value = false;
       } else {
         if (currentTime.value.length == 0) {
           if (int > 2) {
@@ -58,7 +58,7 @@ export default {
     };
 
     const close = () => {
-      showAlert.value = false;
+      showTimer.value = false;
       currentTime.value = pickUpTime.value ? pickUpTime.value : [];
     };
 
@@ -67,7 +67,7 @@ export default {
       setPickUpTime,
       clickNumber,
       close,
-      showAlert,
+      showTimer,
       currentTime,
     };
   },
@@ -75,7 +75,7 @@ export default {
 </script>
 
 <template>
-  <div class="body" v-if="showAlert">
+  <div class="body" v-if="showTimer">
     <div class="content">
       <div class="title">
         <h1>取餐時間：</h1>

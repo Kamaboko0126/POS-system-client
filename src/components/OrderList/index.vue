@@ -1,14 +1,21 @@
 <script>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, provide } from "vue";
 import axios from "axios";
+import HistoryItem from "./HistoryItem.vue";
 
 export default {
+  name: "OrderList",
+  components: {
+    HistoryItem,
+  },
   setup() {
     const socket = ref(null);
     const message = ref("");
     const arrayOrder = ref([]);
     const isHistoryShow = ref(false);
+    provide("isHistoryShow", isHistoryShow);
     const historyList = ref();
+    provide("historyList", historyList);
 
     const date = new Date();
     const day = String(date.getDate()).padStart(2, "0");
@@ -22,13 +29,13 @@ export default {
       socket.value = new WebSocket("ws://127.0.0.1:10000/ws");
       socket.value.addEventListener("message", (event) => {
         message.value = event.data;
-        if (message.value === "Order added") {
-          console.log("Order added");
+        if (message.value === "Order Status Changed") {
+          console.log("Order Status Changed");
           getOrderData();
-          getHistoryOrder();
+          // getHistoryOrder();
         }
       });
-      getHistoryOrder();
+      // getHistoryOrder();
     });
 
     onUnmounted(() => {
@@ -47,14 +54,12 @@ export default {
         response.data[i].lists = response.data[i].lists
           ? JSON.parse(response.data[i].lists)
           : [];
-        for (let j = 0; j < response.data[i].lists.length; j++) {
-          response.data[i].lists[j].markers = response.data[i].lists[j].markers
-            ? JSON.parse(response.data[i].lists[j].markers)
-            : [];
-        }
       }
       arrayOrder.value = response.data;
+      getHistoryOrder();
     };
+
+    provide("getOrderData", getOrderData);
 
     const finished = async (id) => {
       console.log(id);
@@ -78,7 +83,13 @@ export default {
           `http://127.0.0.1:10000/orderlist/history/${today}`
         );
         console.log(response.data);
-        historyList.value = response.data;
+        historyList.value = response.data.map((item) => ({
+          ...item,
+          lists: JSON.parse(item.lists).map((listItem) => ({
+            ...listItem,
+            markers: JSON.parse(listItem.markers),
+          })),
+        }));
         console.log(historyList.value);
       } catch (error) {
         console.error(error);
@@ -101,45 +112,7 @@ export default {
       >history</i
     >
   </div>
-  <div class="body" v-if="isHistoryShow">
-    <div class="content">
-      <div class="close-content">
-        <i class="material-icons" @click="isHistoryShow = !isHistoryShow"
-          >close</i
-        >
-      </div>
-      <div class="history-lists">
-        <div class="history-list" v-for="data in historyList" :key="data.id">
-          <div>
-            <h2>訂單編號：{{ data.index_id }}</h2>
-            <p>點餐時間：{{ data.order_time }}</p>
-            <p>訂單：{{ data.is_finished == 0 ? "尚未完成" : "已完成" }}</p>
-            <p>取餐方式：{{ data.ordering_method }}</p>
-            <p>{{ data.payment }}</p>
-            <!-- <p>{{ data.lists }}</p> -->
-            <div v-for="list in data.lists" :key="list.id">
-              <p>{{ list.id }}</p>
-              <p>{{ list.name }}</p>
-              <p>{{ list.pirce }}</p>
-              <p>{{ list.quantity }}</p>
-            </div>
-            <!-- <p>{{ data.order_id }}</p> -->
-            <p>
-              {{
-                data.pick_up_time == ""
-                  ? ""
-                  : "預定取餐時間：" + data.pick_up_time
-              }}
-            </p>
-            <p>
-              {{ data.phone == "09-XXXXXXXX" ? "" : "訂餐電話：" + data.phone }}
-            </p>
-            <p>{{ data.is_discount == 0 ? "" : "*員工價" }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <HistoryItem />
   <div class="cards">
     <v-draggable v-model="arrayOrder" tag="ul" :disabled="false" itemKey="id">
       <template #item="{ element: order }">
@@ -152,12 +125,12 @@ export default {
           </div>
           <div class="infos">
             <!-- <h3>{{ order.is_discount ? "員工價：是" : "員工價：否" }}</h3> -->
-            <h3>{{ "訂購方式：" + order.ordering_method }}</h3>
-            <h3>{{ "訂購時間：" + order.order_time }}</h3>
+            <h3>{{ "取餐方式：" + order.ordering_method }}</h3>
+            <h3>{{ "點餐時間：" + order.order_time }}</h3>
             <h3>
               {{
                 "取餐時間：" +
-                (order.pick_up_time == "" ? "無" : order.pick_up_time)
+                (order.pick_up_time == "" ? "立即" : order.pick_up_time)
               }}
             </h3>
             <!-- <h3>{{ "付款狀態：" + order.payment }}</h3> -->
@@ -197,29 +170,6 @@ export default {
         </div>
       </template>
     </v-draggable>
-    <!-- <div class="card" v-for="order in arrayOrder" :key="order.id">
-      <h3>{{ "訂單編號：" + order.index_id }}</h3>
-      <h3>{{ order.is_discount ? "員工價：是" : "員工價：否" }}</h3>
-      <h3>{{ "訂購方式：" + order.ordering_method }}</h3>
-      <h3>{{ "訂購時間：none" }}</h3>
-      <h3>{{ "付款狀態：" + order.payment }}</h3>
-      <h3>{{ order.phone == "09-XXXXXXXX" ? "" : order.phone }}</h3>
-      <h3>{{ order.is_finished ? "結單狀態：是" : "結單狀態：否" }}</h3>
-      <div v-for="list in order.lists" :key="list.id">
-        <h2>
-          <span>{{ list.name }}</span
-          ><span>{{ list.quantity }}</span>
-        </h2>
-        <h3>
-          <span
-            v-for="marker in list.markers.filter((marker) => marker.checked)"
-            :key="marker.id"
-          >
-            {{ marker.value }}<span>,</span>
-          </span>
-        </h3>
-      </div>
-    </div> -->
   </div>
 </template>
 
@@ -242,13 +192,11 @@ export default {
 
 .card {
   width: 300px;
-  /* height: 300px; */
   background: #fff;
   box-shadow: 0 10px 20px -12px rgba(0, 0, 0, 0.42),
     0 3px 20px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
   border-bottom: 1px solid rgba(153, 153, 153, 0.3);
   margin: 15px;
-  /* cursor: pointer; */
 }
 
 .card-top {
@@ -326,47 +274,5 @@ export default {
   transition: 0.3s ease-in-out;
   border-radius: 50%;
   padding: 5px;
-}
-
-.body {
-  width: 100%;
-  height: 100vh;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 999;
-  background: #00000029;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.content {
-  max-height: 90%;
-  overflow: auto;
-  width: 600px;
-  background: #fff;
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-  justify-content: start;
-  box-shadow: 0 10px 20px -12px rgba(0, 0, 0, 0.42),
-    0 3px 20px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
-  border-bottom: 1px solid rgba(153, 153, 153, 0.3);
-  border-radius: 6px;
-  padding: 30px 90px 50px 90px;
-}
-
-.close-content {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  margin-bottom: -50px;
-}
-
-.close-content i {
-  font-size: 50px;
-  cursor: pointer;
 }
 </style>

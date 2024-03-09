@@ -1,5 +1,5 @@
 <script>
-import { inject, watch, computed, ref } from "vue";
+import { inject, watch, ref } from "vue";
 export default {
   name: "AlertOrder",
   setup() {
@@ -8,36 +8,24 @@ export default {
     const quantity = ref(1);
     const lists = inject("lists");
     const isEditingOrder = inject("isEditingOrder");
-    // const editOrderId = inject("editOrderId");
     const arrayMarker = ref([]);
-
-    const checkedMarkers = computed(() => {
-      return arrayMarker.value.filter((marker) => marker.checked);
-    });
 
     watch(
       () => currentOrder.value,
       () => {
-        quantity.value = currentOrder.quantity ? currentOrder.quantity : 1;
+        quantity.value = currentOrder.value.quantity ? currentOrder.value.quantity : 1;
         // console.log(currentOrder.value);
-        arrayMarker.value = currentOrder.value.markers
-          ? JSON.parse(currentOrder.value.markers)
-          : [];
       }
     );
 
-    watch(
-      () => isEditingOrder.value,
-      (newVal) => {
-        if (newVal) {
-          showAlert.value = true;
-          quantity.value = currentOrder.value.quantity;
-          arrayMarker.value = currentOrder.value.markers
-            ? JSON.parse(currentOrder.value.markers)
-            : [];
-        }
-      }
-    );
+    // watch(
+    //   () => isEditingOrder.value,
+    //   (newVal) => {
+    //     if (newVal) {
+          
+    //     }
+    //   }
+    // );
 
     const close = () => {
       showAlert.value = false;
@@ -51,26 +39,19 @@ export default {
     const send = () => {
       //新訂單
       if (!isEditingOrder.value) {
-        const checkedData = [];
-        for (let i = 0; i < checkedMarkers.value.length; i++) {
-          checkedData.push(checkedMarkers.value[i].value);
-        }
-
         const listData = {
           id: "l" + Date.now().toString(),
           name: currentOrder.value.name,
           price: currentOrder.value.price,
           quantity: quantity.value,
-          markers: JSON.stringify(arrayMarker.value),
-          checkedMarkers: checkedData,
+          markers: currentOrder.value.markers,
         };
 
         //尋找lists中是否有相同名稱&&marker的品項
         const existingItem = lists.value.find(
           (item) =>
             item.name === listData.name &&
-            JSON.stringify(item.checkedMarkers) === 
-              JSON.stringify(listData.checkedMarkers)
+            JSON.stringify(item.markers) === JSON.stringify(listData.markers)
         );
 
         //若有則數量增加
@@ -89,12 +70,7 @@ export default {
         );
         if (itemToEdit) {
           itemToEdit.quantity = quantity.value;
-          const checked_markers = [];
-          for (let i = 0; i < checkedMarkers.value.length; i++) {
-            checked_markers.push(checkedMarkers.value[i].value);
-          }
-          itemToEdit.checkedMarkers = checked_markers;
-          itemToEdit.markers = JSON.stringify(arrayMarker.value);
+          itemToEdit.markers = currentOrder.value.markers;
           showAlert.value = false;
           isEditingOrder.value = false;
         } else {
@@ -107,7 +83,6 @@ export default {
       showAlert,
       currentOrder,
       arrayMarker,
-      checkedMarkers,
       quantity,
       send,
       close,
@@ -131,7 +106,7 @@ export default {
       </h1>
       <div>
         <h1>備註：</h1>
-        <div v-for="marker in arrayMarker" :key="marker.id">
+        <div v-for="marker in currentOrder.markers" :key="marker.id">
           <div class="marker-list" @click="marker.checked = !marker.checked">
             <i
               class="material-icons"

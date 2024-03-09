@@ -133,11 +133,11 @@ export default {
 
     //刪除品項
     const delItem = async () => {
+      console.log(table_id.value, itemId.value);
       try {
-        const response = await axios.delete("http://127.0.0.1:10000/item/del", {
-          table_id: table_id.value,
-          id: itemId.value,
-        });
+        const response = await axios.delete(
+          `http://127.0.0.1:10000/item/del/${table_id.value}/${itemId.value}`
+        );
         if (response.data.message === "success") {
           isProcessing.value = false;
           console.log("刪除成功");

@@ -1,13 +1,13 @@
 <script>
 import { inject, provide, ref } from "vue";
 import axios from "axios";
-import AlertWindow from "./AlertWindow.vue";
-import HistoryList from "./HistoryList.vue";
+import PickUpTimer from "./PickUpTimer.vue";
+import HistoryList from "./HistoryItem.vue";
 
 export default {
   name: "OrderTable",
   components: {
-    AlertWindow,
+    PickUpTimer,
     HistoryList,
   },
   setup() {
@@ -26,11 +26,13 @@ export default {
     const pickUpTime = ref("");
     provide("pickUpTime", pickUpTime);
 
-    const showAlert = ref(false);
-    provide("showAlert", showAlert);
+    const showTimer = ref(false);
+    provide("showTimer", showTimer);
 
-    const showHistory = ref(false);
-    provide("showHistory", showHistory);
+    const showAlert = inject("showAlert");
+
+    const isHistoryShow = ref(false);
+    provide("isHistoryShow", isHistoryShow);
 
     const date = new Date();
     const year = date.getFullYear();
@@ -60,6 +62,17 @@ export default {
       }
     };
 
+    const editHistoryData = (data) => {
+      console.log(data);
+      lists.value = data.lists;
+      // payment.value = data.payment;
+      // orderingMethod.value = data.ordering_method;
+      // pickUpTime.value = data.pick_up_time;
+      // isDescount.value = data.is_discount;
+    };
+
+    provide("editHistoryData", editHistoryData);
+
     //送出訂單
     const send = async () => {
       lists.value.forEach((item) => {
@@ -85,7 +98,7 @@ export default {
             payment: payment.value,
             phone: "09-XXXXXXXX",
             date: "d" + year + month + day,
-            pick_up_time: "",
+            pick_up_time: pickUpTime.value,
           },
           {
             headers: {
@@ -106,18 +119,18 @@ export default {
     };
 
     //編輯訂單
-    const editOrder = (id, name, price, quantity, markers) => {
+    const editProduct = (list) => {
       isEditingOrder.value = true;
-      currentOrder.value.id = id;
-      currentOrder.value.name = name;
-      currentOrder.value.price = price;
-      currentOrder.value.quantity = quantity;
-      currentOrder.value.markers = markers;
-      // console.log(markers);
+      currentOrder.value = list;
+      showAlert.value = true;
+      // currentOrder.value.name = name;
+      // currentOrder.value.price = price;
+      // currentOrder.value.quantity = quantity;
+      // console.log(list);
     };
 
     //刪除訂單
-    const delOrder = (id) => {
+    const delProduct = (id) => {
       const index = lists.value.findIndex((list) => list.id === id);
       lists.value.splice(index, 1);
     };
@@ -142,19 +155,20 @@ export default {
       lists,
       selectMethod,
       send,
-      editOrder,
-      delOrder,
+      editProduct,
+      delProduct,
       check,
       pickUpTime,
+      showTimer,
       showAlert,
-      showHistory,
+      isHistoryShow,
     };
   },
 };
 </script>
 
 <template>
-  <AlertWindow />
+  <PickUpTimer />
   <div class="order-content">
     <div class="top">
       <div class="col">
@@ -190,7 +204,7 @@ export default {
         <p>取餐時間：</p>
         <div class="buttons">
           <button
-            @click="showAlert = true"
+            @click="showTimer = true"
             :class="{ pickup: pickUpTime != '' }"
           >
             {{ pickUpTime == "" ? "立即" : pickUpTime }}
@@ -215,17 +229,25 @@ export default {
         </div>
       </div>
       <div class="col">
-        <p>員 工 價 ：</p>
-        <div class="buttons">
-          <button
-            @click="selectMethod(false)"
-            :class="{ current: !isDescount }"
-          >
-            否
-          </button>
-          <button @click="selectMethod(true)" :class="{ current: isDescount }">
-            是
-          </button>
+        <div class="left">
+          <p>員 工 價 ：</p>
+          <div class="buttons">
+            <button
+              @click="selectMethod(false)"
+              :class="{ current: !isDescount }"
+            >
+              否
+            </button>
+            <button
+              @click="selectMethod(true)"
+              :class="{ current: isDescount }"
+            >
+              是
+            </button>
+          </div>
+        </div>
+        <div class="right">
+          <button @click="isHistoryShow = !isHistoryShow">歷史訂單</button>
         </div>
       </div>
     </div>
@@ -240,20 +262,8 @@ export default {
         </div>
         <div class="list-body" v-for="list in lists" :key="list.id">
           <div class="item-icon">
-            <i
-              class="material-icons edit"
-              @click="
-                editOrder(
-                  list.id,
-                  list.name,
-                  list.price,
-                  list.quantity,
-                  list.markers
-                )
-              "
-              >edit</i
-            >
-            <i class="material-icons delete" @click="delOrder(list.id)"
+            <i class="material-icons edit" @click="editProduct(list)">edit</i>
+            <i class="material-icons delete" @click="delProduct(list.id)"
               >delete</i
             >
           </div>
@@ -263,10 +273,10 @@ export default {
           <div class="markers">
             <p
               class="item-marker"
-              v-for="marker in list.checkedMarkers"
+              v-for="marker in list.markers.filter((marker) => marker.checked)"
               :key="marker.id"
             >
-              {{ marker }}
+              {{ marker.value }}
               <span>, </span>
             </p>
           </div>
@@ -278,7 +288,7 @@ export default {
       <!-- <button @click="check">檢查</button> -->
     </div>
   </div>
-  <HistoryList v-if="showHistory" />
+  <HistoryList />
 </template>
 
 <style scoped>
@@ -320,7 +330,7 @@ export default {
   flex-direction: column;
   align-items: start;
   justify-content: start;
-  height: 275px;
+  height: 285px;
   width: 100%;
   overflow: auto;
   flex-shrink: 0;
@@ -343,6 +353,16 @@ export default {
   width: 590px;
   margin-top: 8px;
   flex-shrink: 0;
+}
+
+.col:last-child {
+  justify-content: space-between;
+}
+
+.col .left {
+  display: flex;
+  align-items: center;
+  justify-content: start;
 }
 
 .col p {
