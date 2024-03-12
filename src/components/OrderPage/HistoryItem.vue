@@ -7,10 +7,15 @@ export default {
   setup() {
     const socket = ref(null);
     const message = ref("");
+    const lists = inject("lists");
 
     const isHistoryShow = inject("isHistoryShow");
     const historyList = ref();
-    const editHistoryData= inject("editHistoryData");
+    
+    const editHistoryData = (data) => {
+      lists.value = data.lists;
+      isHistoryShow.value = false;
+    };
 
     const date = new Date();
     const day = String(date.getDate()).padStart(2, "0");
