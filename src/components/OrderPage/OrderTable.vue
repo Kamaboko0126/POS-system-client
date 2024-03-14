@@ -11,28 +11,25 @@ export default {
     HistoryList,
   },
   setup() {
-    const orderingMethod = ref("內用");
-
-    const payment = ref("已付款");
-
-    const isDescount = ref(false);
-
+    const payment = inject("payment");
+    const isDiscount = inject("isDiscount");
     const lists = inject("lists");
-
-    const isEditingOrder = inject("isEditingOrder");
+    const pickUpTime = inject("pickUpTime");
+    const orderingMethod = inject("orderingMethod");
 
     const currentOrder = inject("currentOrder");
-
-    const pickUpTime = ref("");
-    provide("pickUpTime", pickUpTime);
 
     const showTimer = ref(false);
     provide("showTimer", showTimer);
 
+    const isEditingOrder = inject("isEditingOrder");
     const showAlert = inject("showAlert");
 
     const isHistoryShow = ref(false);
     provide("isHistoryShow", isHistoryShow);
+
+    const editingHistory = inject("editingHistory");
+    const historyOrderId = inject("historyOrderId");
 
     const date = new Date();
     const year = date.getFullYear();
@@ -58,20 +55,9 @@ export default {
         }
         orderingMethod.value = method;
       } else if (method == true || method == false) {
-        isDescount.value = method;
+        isDiscount.value = method;
       }
     };
-
-    const editHistoryData = (data) => {
-      console.log(data);
-      lists.value = data.lists;
-      // payment.value = data.payment;
-      // orderingMethod.value = data.ordering_method;
-      // pickUpTime.value = data.pick_up_time;
-      // isDescount.value = data.is_discount;
-    };
-
-    provide("editHistoryData", editHistoryData);
 
     //送出訂單
     const send = async () => {
@@ -86,36 +72,71 @@ export default {
         alert("請選擇訂購方式");
         return;
       }
-
-      try {
-        const response = await axios.post(
-          "http://127.0.0.1:10000/order/add",
-          {
-            is_discount: isDescount.value,
-            lists: JSON.stringify(lists.value),
-            order_id: "o" + Date.now().toString(),
-            ordering_method: orderingMethod.value,
-            payment: payment.value,
-            phone: "09-XXXXXXXX",
-            date: "d" + year + month + day,
-            pick_up_time: pickUpTime.value,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
+      if (!editingHistory.value) {
+        try {
+          const response = await axios.post(
+            "http://127.0.0.1:10000/order/add",
+            {
+              is_discount: isDiscount.value,
+              lists: JSON.stringify(lists.value),
+              order_id: "o" + Date.now().toString(),
+              ordering_method: orderingMethod.value,
+              payment: payment.value,
+              phone: "09-XXXXXXXX",
+              date: "d" + year + month + day,
+              pick_up_time: pickUpTime.value,
             },
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          if (response.data.message === "success") {
+            console.log("新增成功");
+            lists.value = [];
+            pickUpTime.value = "";
+            orderingMethod.value = "內用";
+            isDiscount.value = false;
+            payment.value = "";
           }
-        );
-        if (response.data.message === "success") {
-          console.log("新增成功");
-          lists.value = [];
-          pickUpTime.value = "";
-          // payment.value = "";
+        } catch (error) {
+          console.error(error);
         }
-      } catch (error) {
-        console.error(error);
+      } else if(editingHistory.value) {
+        console.log("編輯歷史訂單");
+        try {
+          const response = await axios.put(
+            "http://127.0.0.1:10000/order/edit",
+            {
+              history_order_id: historyOrderId.value,
+              is_discount: isDiscount.value,
+              lists: JSON.stringify(lists.value),
+              ordering_method: orderingMethod.value,
+              payment: payment.value,
+              phone: "09-XXXXXXXX",
+              date: "d" + year + month + day,
+              pick_up_time: pickUpTime.value,
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          if (response.data.message === "success") {
+            console.log("新增成功");
+            editingHistory.value = false;
+            lists.value = [];
+            pickUpTime.value = "";
+            orderingMethod.value = "內用";
+            isDiscount.value = false;
+            payment.value = "";
+          }
+        } catch (error) {
+          console.error(error);
+        }
       }
-      // console.log(lists.value);
     };
 
     //編輯訂單
@@ -123,10 +144,6 @@ export default {
       isEditingOrder.value = true;
       currentOrder.value = list;
       showAlert.value = true;
-      // currentOrder.value.name = name;
-      // currentOrder.value.price = price;
-      // currentOrder.value.quantity = quantity;
-      // console.log(list);
     };
 
     //刪除訂單
@@ -135,33 +152,34 @@ export default {
       lists.value.splice(index, 1);
     };
 
-    const check = () => {
-      const testData = {
-        order_id: "o" + Date.now().toString(),
-        ordering_method: orderingMethod.value,
-        payment: payment.value,
-        is_discount: isDescount.value,
-        phone: "",
-        lists: lists.value,
-      };
-      console.log(testData);
-      console.log(lists.value);
-    };
+    // const check = () => {
+    //   const testData = {
+    //     order_id: "o" + Date.now().toString(),
+    //     ordering_method: orderingMethod.value,
+    //     payment: payment.value,
+    //     is_discount: isDiscount.value,
+    //     phone: "",
+    //     lists: lists.value,
+    //   };
+    //   // console.log(testData);
+    //   // console.log(lists.value);
+    // };
 
     return {
       orderingMethod,
       payment,
-      isDescount,
+      isDiscount,
       lists,
       selectMethod,
       send,
       editProduct,
       delProduct,
-      check,
+      // check,
       pickUpTime,
       showTimer,
       showAlert,
       isHistoryShow,
+      editingHistory,
     };
   },
 };
@@ -234,13 +252,13 @@ export default {
           <div class="buttons">
             <button
               @click="selectMethod(false)"
-              :class="{ current: !isDescount }"
+              :class="{ current: !isDiscount }"
             >
               否
             </button>
             <button
               @click="selectMethod(true)"
-              :class="{ current: isDescount }"
+              :class="{ current: isDiscount }"
             >
               是
             </button>
@@ -284,7 +302,7 @@ export default {
       </div>
     </div>
     <div class="bottom">
-      <button @click="send">送出</button>
+      <button @click="send">{{ editingHistory ? "修改" : "送出" }}</button>
       <!-- <button @click="check">檢查</button> -->
     </div>
   </div>

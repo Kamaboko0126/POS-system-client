@@ -48,6 +48,27 @@ export default {
     const lists = ref([]);
     provide("lists", lists);
 
+    const editingHistory = ref(false);
+    provide("editingHistory", editingHistory);
+
+    const historyOrderId = ref("");
+    provide("historyOrderId", historyOrderId);
+
+    const payment = ref("");
+    provide("payment", payment);
+
+    const isDiscount = ref(false);
+    provide("isDiscount", isDiscount);
+
+    const pickUpTime = ref("");
+    provide("pickUpTime", pickUpTime);
+
+    const orderingMethod = ref("內用");
+    provide("orderingMethod", orderingMethod);
+
+    // const phone = ref("09-XXXX-XXXX");
+    // provide("phone", phone);
+
     watch(
       () => lists.value,
       (newVal) => {

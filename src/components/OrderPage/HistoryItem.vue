@@ -8,13 +8,30 @@ export default {
     const socket = ref(null);
     const message = ref("");
     const lists = inject("lists");
+    const editingHistory = inject("editingHistory");
 
     const isHistoryShow = inject("isHistoryShow");
     const historyList = ref();
-    
+
+    const historyOrderId = inject("historyOrderId");
+
+    const isDiscount = inject("isDiscount");
+    const payment = inject("payment");
+    const orderingMethod = inject("orderingMethod");
+    const pickUpTime = inject("pickUpTime");
+    // const phone = inject("phone");
+
     const editHistoryData = (data) => {
-      lists.value = data.lists;
+      lists.value = JSON.parse(JSON.stringify(data.lists));
       isHistoryShow.value = false;
+      editingHistory.value = true;
+      historyOrderId.value = data.order_id;
+      isDiscount.value = data.is_discount;
+      payment.value = data.payment;
+      orderingMethod.value = data.ordering_method;
+      pickUpTime.value = data.pick_up_time;
+      // phone.value = data.phone;
+      // console.log(data);
     };
 
     const date = new Date();
@@ -29,15 +46,14 @@ export default {
         const response = await axios.get(
           `http://127.0.0.1:10000/orderlist/history/${today}`
         );
-        // console.log(response.data);
         historyList.value = response.data.map((item) => ({
           ...item,
           lists: JSON.parse(item.lists).map((listItem) => ({
             ...listItem,
-            // markers: JSON.parse(listItem.markers),
           })),
         }));
-        // console.log(historyList.value);
+
+        console.log('get history data')
       } catch (error) {
         console.error(error);
       }
@@ -49,7 +65,6 @@ export default {
       socket.value.addEventListener("message", (event) => {
         message.value = event.data;
         if (message.value === "Order Status Changed") {
-          console.log("Order Status Changed");
           getHistoryOrder();
         }
       });
