@@ -98,6 +98,18 @@ export default {
           <p>點餐時間：{{ data.order_time }}</p>
           <p>訂單：{{ data.is_finished == 0 ? "尚未完成" : "已完成" }}</p>
           <p>付款狀態：{{ data.payment }}</p>
+          <!-- <p>{{ data.order_id }}</p> -->
+          <p>
+            {{
+              data.pick_up_time == ""
+                ? ""
+                : "預定取餐時間：" + data.pick_up_time
+            }}
+          </p>
+          <p>
+            {{ data.phone == "09-XXXXXXXX" ? "" : "訂餐電話：" + data.phone }}
+          </p>
+          <p>{{ data.is_discount == 0 ? "" : "*員工價" }}</p>
           <div class="products">
             <div v-for="list in data.lists" :key="list.id">
               <!-- <p>{{ list.id }}</p> -->
@@ -116,18 +128,6 @@ export default {
               </div>
             </div>
           </div>
-          <!-- <p>{{ data.order_id }}</p> -->
-          <p>
-            {{
-              data.pick_up_time == ""
-                ? ""
-                : "預定取餐時間：" + data.pick_up_time
-            }}
-          </p>
-          <p>
-            {{ data.phone == "09-XXXXXXXX" ? "" : "訂餐電話：" + data.phone }}
-          </p>
-          <p>{{ data.is_discount == 0 ? "" : "*員工價" }}</p>
         </div>
       </div>
     </div>
@@ -181,11 +181,10 @@ export default {
   padding: 15px 30px;
   margin: 15px 0;
   font-size: var(--main-font-size);
-  color: #fff;
-  background: var(--main-color);
+  color: #232323;
   box-shadow: 0 10px 20px -12px rgba(0, 0, 0, 0.42),
     0 3px 20px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
-  border-bottom: 1px solid rgba(153, 153, 153, 0.3);
+  border: 1px solid rgba(153, 153, 153, 0.3);
   display: flex;
   flex-direction: column;
 }

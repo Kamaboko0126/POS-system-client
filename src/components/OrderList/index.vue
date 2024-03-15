@@ -49,7 +49,7 @@ export default {
       const response = await axios.get(
         `http://127.0.0.1:10000/orderlist/get/${today}`
       );
-      // console.log(response.data);
+      console.log(response.data);
       for (let i = 0; i < response.data.length; i++) {
         response.data[i].lists = response.data[i].lists
           ? JSON.parse(response.data[i].lists)
@@ -87,7 +87,7 @@ export default {
           ...item,
           lists: JSON.parse(item.lists).map((listItem) => ({
             ...listItem,
-            markers: JSON.parse(listItem.markers),
+            // markers: JSON.parse(listItem.markers),
           })),
         }));
         console.log(historyList.value);

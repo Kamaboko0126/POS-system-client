@@ -316,11 +316,13 @@ export default {
   align-items: center;
   justify-content: space-around;
   padding: 5px;
+  flex-shrink: 0;
 }
 
 .item-icon i {
   font-size: 32px;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .edit {
