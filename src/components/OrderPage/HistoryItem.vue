@@ -53,7 +53,7 @@ export default {
           })),
         }));
 
-        console.log('get history data')
+        console.log("get history data");
       } catch (error) {
         console.error(error);
       }
@@ -84,6 +84,9 @@ export default {
   <div class="body" v-if="isHistoryShow">
     <div class="content">
       <div class="close-content">
+        <div class="time-picker">
+          <VueDatePicker v-model="date" :max-date="new Date()" />
+        </div>
         <i class="material-icons" @click="isHistoryShow = !isHistoryShow"
           >close</i
         >
@@ -135,6 +138,9 @@ export default {
 </template>
 
 <style scoped>
+.time-picker{
+  position: relative;
+}
 .body {
   width: 100%;
   height: 100vh;
@@ -199,13 +205,15 @@ export default {
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-around;
   /* margin-bottom: -50px; */
 }
 
 .close-content i {
+  position: relative;
   font-size: 50px;
   cursor: pointer;
+
 }
 
 .title {

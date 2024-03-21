@@ -25,20 +25,12 @@ export default {
     const isEditingOrder = inject("isEditingOrder");
     const showAlert = inject("showAlert");
 
-    const isHistoryShow = ref(false);
+    const isHistoryShow = ref(true);
     provide("isHistoryShow", isHistoryShow);
 
     const editingHistory = inject("editingHistory");
     const historyOrderId = inject("historyOrderId");
-
-    const date = new Date();
-    const year = date.getFullYear();
-    let month = date.getMonth() + 1;
-    let day = date.getDate();
-
-    // 確保月份和日期都是兩位數
-    month = month < 10 ? "0" + month : month;
-    day = day < 10 ? "0" + day : day;
+    const systemDate = inject("systemDate");
 
     //上方選擇訂購方式、付款狀態、員工價
     const selectMethod = (method) => {
@@ -83,7 +75,7 @@ export default {
               ordering_method: orderingMethod.value,
               payment: payment.value,
               phone: "09-XXXXXXXX",
-              date: "d" + year + month + day,
+              date: "d" + systemDate.value,
               pick_up_time: pickUpTime.value,
             },
             {
@@ -115,7 +107,7 @@ export default {
               ordering_method: orderingMethod.value,
               payment: payment.value,
               phone: "09-XXXXXXXX",
-              date: "d" + year + month + day,
+              date: "d" + systemDate.value,
               pick_up_time: pickUpTime.value,
             },
             {
