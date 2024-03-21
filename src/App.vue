@@ -23,6 +23,14 @@ export default {
     //提供isMenuShow給MenuItem使用
     provide("isMenuShow", isMenuShow);
 
+    const systemDate = new Date();
+    // const year = today.getFullYear();
+    // const month = String(today.getMonth() + 1).padStart(2, "0"); // getMonth() 從 0 開始，所以需要加 1
+    // const day = String(today.getDate()).padStart(2, "0");
+    // const today = ref(`${year}/${month}/${day}`);
+
+    provide("systemDate", systemDate);
+
     return {
       isMenuShow,
     };
