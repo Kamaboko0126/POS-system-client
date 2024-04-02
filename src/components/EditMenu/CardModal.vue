@@ -9,6 +9,8 @@ export default {
     mode: String,
   },
   setup(props) {
+    const backendUrl = inject("backendUrl");
+
     const { mode } = toRefs(props);
     const currentMode = mode.value;
     const store = useStore();
@@ -29,7 +31,6 @@ export default {
     const itemNum = ref(currentItem.value.length);
     provide("itemNum", itemNum);
     const currentId = inject("currentId");
-
     const classNum = inject("classNum");
 
     // 監控 items 的變化
@@ -87,7 +88,7 @@ export default {
       const jsonData = JSON.stringify(toRaw(data));
       try {
         const response = await axios.put(
-          "http://127.0.0.1:10000/item/changeorder",
+          backendUrl + "/item/changeorder",
           {
             table_id: currentId.value,
             data: jsonData,

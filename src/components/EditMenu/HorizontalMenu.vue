@@ -11,6 +11,8 @@ export default {
     mode: String,
   },
   setup(props) {
+    const backendUrl = inject("backendUrl");
+
     const { mode } = toRefs(props);
     const currentMode = mode.value;
     const store = useStore();
@@ -107,7 +109,7 @@ export default {
       const jsonData = JSON.stringify(toRaw(data));
       try {
         const response = await axios.put(
-          "http://127.0.0.1:10000/class/changeorder",
+          backendUrl + "/class/changeorder",
           {
             data: jsonData,
           },
@@ -203,7 +205,7 @@ export default {
   <div
     class="horizontal-menu-content"
     :class="{ 'hide-scrollbar': !isEditing }"
-    :style="{paddingLeft: currentMode === 'edit' ? '155px' : '20px'}"
+    :style="{ paddingLeft: currentMode === 'edit' ? '155px' : '20px' }"
   >
     <div class="button-content" v-if="currentMode == 'edit'">
       <div class="edit-btn" @click="editing" :class="{ editing: isEditing }">

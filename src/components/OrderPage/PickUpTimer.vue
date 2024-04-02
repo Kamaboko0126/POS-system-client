@@ -1,5 +1,5 @@
 <script>
-import { ref, inject } from "vue";
+import { ref, inject} from "vue";
 
 export default {
   setup() {
@@ -19,7 +19,7 @@ export default {
           pickUpTime.value = "";
           showTimer.value = false;
           return;
-        }else if (currentTime.value.length < 4) {
+        } else if (currentTime.value.length < 4) {
           console.log("請輸入完整時間");
           return;
         }

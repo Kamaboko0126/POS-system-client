@@ -5,6 +5,8 @@ import axios from "axios";
 export default {
   name: "HistoryItem",
   setup() {
+    const backendUrl = inject("backendUrl");
+
     const isHistoryShow = inject("isHistoryShow");
     const historyList = inject("historyList");
     const getOrderData = inject("getOrderData");
@@ -13,7 +15,7 @@ export default {
       console.log(id);
       try {
         const response = await axios.put(
-          `http://127.0.0.1:10000/orderlist/unfinish/${id}`
+          backendUrl + `/orderlist/unfinish/${id}`
         );
         if (response.data.message === "success") {
           getOrderData();

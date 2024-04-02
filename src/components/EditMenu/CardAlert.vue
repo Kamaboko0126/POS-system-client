@@ -4,6 +4,8 @@ import axios from "axios";
 
 export default {
   setup() {
+    const backendUrl = inject("backendUrl");
+
     const isEditing = inject("isCardEditing");
     const showAlert = inject("showAlert");
     const table_id = inject("currentId");
@@ -75,7 +77,7 @@ export default {
     const editItem = async () => {
       try {
         const response = await axios.put(
-          "http://127.0.0.1:10000/item/edit",
+          backendUrl + "/item/edit",
           {
             table_id: table_id.value,
             id: itemId.value,
@@ -104,7 +106,7 @@ export default {
     const addItem = async () => {
       try {
         const response = await axios.post(
-          "http://127.0.0.1:10000/item/add",
+          backendUrl + "/item/add",
           {
             table_id: table_id.value,
             id: "i" + Date.now().toString(),
@@ -136,7 +138,7 @@ export default {
       console.log(table_id.value, itemId.value);
       try {
         const response = await axios.delete(
-          `http://127.0.0.1:10000/item/del/${table_id.value}/${itemId.value}`
+          backendUrl + `/item/del/${table_id.value}/${itemId.value}`
         );
         if (response.data.message === "success") {
           isProcessing.value = false;
@@ -170,7 +172,7 @@ export default {
         const string = JSON.stringify(arrayMarker.value);
         try {
           const response = await axios.post(
-            "http://127.0.0.1:10000/marker/add",
+            backendUrl + "/marker/add",
             {
               table_id: table_id.value,
               item_id: itemId.value,
@@ -209,7 +211,7 @@ export default {
 
         try {
           const response = await axios.post(
-            "http://127.0.0.1:10000/marker/add",
+            backendUrl + "/marker/add",
             {
               table_id: table_id.value,
               item_id: itemId.value,
@@ -263,7 +265,7 @@ export default {
 
           try {
             const response = await axios.post(
-              "http://127.0.0.1:10000/marker/add",
+              backendUrl + "/marker/add",
               {
                 table_id: table_id.value,
                 item_id: itemId.value,
@@ -294,7 +296,7 @@ export default {
       const string = JSON.stringify(arrayMarker.value);
       try {
         const response = await axios.post(
-          "http://127.0.0.1:10000/marker/add",
+          backendUrl + "/marker/add",
           {
             table_id: table_id.value,
             item_id: itemId.value,

@@ -3,6 +3,8 @@ import { ref, inject } from "vue";
 import axios from "axios";
 export default {
   setup() {
+    const backendUrl = inject("backendUrl");
+
     const showAlert = inject("showAlert");
     const isAdding = inject("isAdding");
     const name = inject("name");
@@ -66,7 +68,7 @@ export default {
     const addClass = async (name) => {
       try {
         const response = await axios.post(
-          "http://127.0.0.1:10000/class/add",
+          backendUrl + "/class/add",
           {
             order_id: classNum.value + 1,
             menu_class: name,
@@ -93,9 +95,7 @@ export default {
     //刪除類別
     const deleteClass = async (id) => {
       try {
-        const response = await axios.delete(
-          `http://127.0.0.1:10000/class/del/${id}`
-        );
+        const response = await axios.delete(backendUrl + `/class/del/${id}`);
         if (response.data.message === "success") {
           isProcessing.value = false;
           refresh();
@@ -111,7 +111,7 @@ export default {
     const editClass = async (id, name) => {
       try {
         const response = await axios.put(
-          "http://127.0.0.1:10000/class/edit",
+          backendUrl + "/class/edit",
           {
             menu_class: name,
             id: id,

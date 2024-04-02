@@ -16,6 +16,8 @@ export default {
     const openMenu = () => {
       isMenuShow.value = !isMenuShow.value;
     };
+    const backendUrl = "http://127.0.0.1:10000";
+    provide("backendUrl", backendUrl);
 
     /*點擊Header icon，觸發openMenu，切換isMenuShow，顯示Menu*/
     //提供openMenu給HeaderItem使用
@@ -23,13 +25,14 @@ export default {
     //提供isMenuShow給MenuItem使用
     provide("isMenuShow", isMenuShow);
 
-    const systemDate = new Date();
-    // const year = today.getFullYear();
-    // const month = String(today.getMonth() + 1).padStart(2, "0"); // getMonth() 從 0 開始，所以需要加 1
-    // const day = String(today.getDate()).padStart(2, "0");
-    // const today = ref(`${year}/${month}/${day}`);
-
+    const systemDate = ref(new Date());
     provide("systemDate", systemDate);
+
+    const closedTimePicker = ref(false);
+    provide("closedTimePicker", closedTimePicker);
+
+    const editingHistory = ref(false);
+    provide("editingHistory", editingHistory);
 
     return {
       isMenuShow,

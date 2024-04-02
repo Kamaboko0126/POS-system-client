@@ -11,6 +11,8 @@ export default {
     HistoryList,
   },
   setup() {
+    const backendUrl = inject("backendUrl");
+
     const payment = inject("payment");
     const isDiscount = inject("isDiscount");
     const lists = inject("lists");
@@ -25,7 +27,7 @@ export default {
     const isEditingOrder = inject("isEditingOrder");
     const showAlert = inject("showAlert");
 
-    const isHistoryShow = ref(true);
+    const isHistoryShow = ref(false);
     provide("isHistoryShow", isHistoryShow);
 
     const editingHistory = inject("editingHistory");
@@ -66,8 +68,18 @@ export default {
       }
       if (!editingHistory.value) {
         try {
+          console.log(
+            "d" +
+              new Intl.DateTimeFormat("zh-TW", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+              })
+                .format(new Date(systemDate.value))
+                .replace(/\//g, "")
+          );
           const response = await axios.post(
-            "http://127.0.0.1:10000/order/add",
+            backendUrl + "/order/add",
             {
               is_discount: isDiscount.value,
               lists: JSON.stringify(lists.value),
@@ -75,7 +87,15 @@ export default {
               ordering_method: orderingMethod.value,
               payment: payment.value,
               phone: "09-XXXXXXXX",
-              date: "d" + systemDate.value,
+              date:
+                "d" +
+                new Intl.DateTimeFormat("zh-TW", {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                })
+                  .format(new Date(systemDate.value))
+                  .replace(/\//g, ""),
               pick_up_time: pickUpTime.value,
             },
             {
@@ -95,11 +115,11 @@ export default {
         } catch (error) {
           console.error(error);
         }
-      } else if(editingHistory.value) {
+      } else if (editingHistory.value) {
         console.log("編輯歷史訂單");
         try {
           const response = await axios.put(
-            "http://127.0.0.1:10000/order/edit",
+            backendUrl + "/order/edit",
             {
               history_order_id: historyOrderId.value,
               is_discount: isDiscount.value,
@@ -107,7 +127,15 @@ export default {
               ordering_method: orderingMethod.value,
               payment: payment.value,
               phone: "09-XXXXXXXX",
-              date: "d" + systemDate.value,
+              date:
+                "d" +
+                new Intl.DateTimeFormat("zh-TW", {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                })
+                  .format(new Date(systemDate.value))
+                  .replace(/\//g, ""),
               pick_up_time: pickUpTime.value,
             },
             {
@@ -144,18 +172,45 @@ export default {
       lists.value.splice(index, 1);
     };
 
-    // const check = () => {
-    //   const testData = {
-    //     order_id: "o" + Date.now().toString(),
-    //     ordering_method: orderingMethod.value,
-    //     payment: payment.value,
-    //     is_discount: isDiscount.value,
-    //     phone: "",
-    //     lists: lists.value,
-    //   };
-    //   // console.log(testData);
-    //   // console.log(lists.value);
-    // };
+    const cancel = () => {
+      editingHistory.value = false;
+      lists.value = [];
+      pickUpTime.value = "";
+      orderingMethod.value = "內用";
+      isDiscount.value = false;
+      payment.value = "";
+    };
+
+    const del = async () => {
+      console.log("刪除");
+      console.log(historyOrderId.value);
+      try {
+        const response = await axios.delete(
+          backendUrl +
+            `/order/del/${historyOrderId.value}/${
+              "d" +
+              new Intl.DateTimeFormat("zh-TW", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+              })
+                .format(new Date(systemDate.value))
+                .replace(/\//g, "")
+            }`
+        );
+        if (response.data.message === "success") {
+          console.log("刪除成功");
+          editingHistory.value = false;
+          lists.value = [];
+          pickUpTime.value = "";
+          orderingMethod.value = "內用";
+          isDiscount.value = false;
+          payment.value = "";
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
     return {
       orderingMethod,
@@ -166,12 +221,13 @@ export default {
       send,
       editProduct,
       delProduct,
-      // check,
       pickUpTime,
       showTimer,
       showAlert,
       isHistoryShow,
       editingHistory,
+      cancel,
+      del,
     };
   },
 };
@@ -294,8 +350,11 @@ export default {
       </div>
     </div>
     <div class="bottom">
+      <div class="buttons" v-if="editingHistory">
+        <button @click="cancel">取消</button>
+        <button @click="del">刪除</button>
+      </div>
       <button @click="send">{{ editingHistory ? "修改" : "送出" }}</button>
-      <!-- <button @click="check">檢查</button> -->
     </div>
   </div>
   <HistoryList />
@@ -457,6 +516,16 @@ button {
 }
 .bottom {
   width: 100%;
+}
+
+.bottom .buttons {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bottom .buttons button {
+  width: 48%;
 }
 
 .bottom button {

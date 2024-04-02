@@ -1,5 +1,5 @@
 <script>
-import { inject, ref, watch } from "vue";
+import { inject, ref } from "vue";
 import { useRoute } from "vue-router";
 
 export default {
@@ -9,29 +9,17 @@ export default {
     const openMenu = inject("openMenu");
     const route = useRoute();
     const showTimer = ref(false);
-    // const isLogin = ref(JSON.parse(sessionStorage.getItem("isLogin")));
-
-    // const updateIcon = () => {
-    //   isLogin.value = JSON.parse(sessionStorage.getItem("isLogin"));
-    // };
-
-    // onMounted(() => {
-    //   updateIcon();
-    // });
     const systemDate = inject("systemDate");
-
-    watch(systemDate, (newDate, oldDate) => {
-      console.log("New date:", newDate);
-      console.log("Old date:", oldDate);
-    });
+    const closedTimePicker = inject("closedTimePicker");
+    const editingHistory = inject("editingHistory");
 
     return {
       openMenu,
       route,
       systemDate,
       showTimer,
-      // isLogin,
-      // updateIcon,
+      closedTimePicker,
+      editingHistory,
     };
   },
 };
@@ -50,7 +38,12 @@ export default {
     <div class="left">
       <router-link to="/"> 美食棧 </router-link>
       <div class="time-picker">
-        <VueDatePicker v-model="systemDate" :enable-time-picker="false">
+        <VueDatePicker
+          v-model="systemDate"
+          :enable-time-picker="false"
+          @closed="closedTimePicker = true"
+          :disabled="editingHistory"
+        >
           <template #trigger>
             <p>
               {{
@@ -66,12 +59,6 @@ export default {
       </div>
     </div>
     <div class="right">
-      <!-- <router-link to="/login" v-if="!isLogin">
-        <div class="login">
-          <i class="material-icons">person</i>
-          <p>登入</p>
-        </div>
-      </router-link> -->
       <div class="menu">
         <i class="material-icons" @click="openMenu">menu</i>
       </div>

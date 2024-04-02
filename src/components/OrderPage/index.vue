@@ -48,9 +48,6 @@ export default {
     const lists = ref([]);
     provide("lists", lists);
 
-    const editingHistory = ref(false);
-    provide("editingHistory", editingHistory);
-
     const historyOrderId = ref("");
     provide("historyOrderId", historyOrderId);
 
@@ -65,9 +62,6 @@ export default {
 
     const orderingMethod = ref("內用");
     provide("orderingMethod", orderingMethod);
-
-    // const phone = ref("09-XXXX-XXXX");
-    // provide("phone", phone);
 
     watch(
       () => lists.value,

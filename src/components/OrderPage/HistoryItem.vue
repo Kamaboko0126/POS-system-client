@@ -1,10 +1,12 @@
 <script>
-import { inject, ref, onMounted } from "vue";
+import { inject, ref, onMounted, watch } from "vue";
 import axios from "axios";
 
 export default {
   name: "HistoryItem",
   setup() {
+    const backendUrl = inject("backendUrl");
+
     const socket = ref(null);
     const message = ref("");
     const lists = inject("lists");
@@ -19,7 +21,20 @@ export default {
     const payment = inject("payment");
     const orderingMethod = inject("orderingMethod");
     const pickUpTime = inject("pickUpTime");
-    // const phone = inject("phone");
+
+    const systemDate = inject("systemDate");
+
+    const closedTimePicker = inject("closedTimePicker");
+
+    watch(closedTimePicker, () => {
+      if (closedTimePicker.value === true) {
+        getHistoryOrder();
+        closedTimePicker.value = false;
+        console.log("closedTimePick is true");
+      } else {
+        console.log("closedTimePick is false");
+      }
+    });
 
     const editHistoryData = (data) => {
       lists.value = JSON.parse(JSON.stringify(data.lists));
@@ -30,21 +45,23 @@ export default {
       payment.value = data.payment;
       orderingMethod.value = data.ordering_method;
       pickUpTime.value = data.pick_up_time;
-      // phone.value = data.phone;
-      // console.log(data);
     };
 
-    const date = new Date();
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // January is 0!
-    const year = date.getFullYear();
-
-    const today = "d" + year + month + day;
-
     const getHistoryOrder = async () => {
+      historyList.value = [];
       try {
         const response = await axios.get(
-          `http://127.0.0.1:10000/orderlist/history/${today}`
+          backendUrl +
+            `/orderlist/history/${
+              "d" +
+              new Intl.DateTimeFormat("zh-TW", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+              })
+                .format(new Date(systemDate.value))
+                .replace(/\//g, "")
+            }`
         );
         historyList.value = response.data.map((item) => ({
           ...item,
@@ -53,7 +70,6 @@ export default {
           })),
         }));
 
-        console.log("get history data");
       } catch (error) {
         console.error(error);
       }
@@ -68,7 +84,6 @@ export default {
           getHistoryOrder();
         }
       });
-      // getHistoryOrder();
     });
 
     return {
@@ -84,9 +99,6 @@ export default {
   <div class="body" v-if="isHistoryShow">
     <div class="content">
       <div class="close-content">
-        <div class="time-picker">
-          <VueDatePicker v-model="date" :max-date="new Date()" />
-        </div>
         <i class="material-icons" @click="isHistoryShow = !isHistoryShow"
           >close</i
         >
@@ -101,7 +113,6 @@ export default {
           <p>點餐時間：{{ data.order_time }}</p>
           <p>訂單：{{ data.is_finished == 0 ? "尚未完成" : "已完成" }}</p>
           <p>付款狀態：{{ data.payment }}</p>
-          <!-- <p>{{ data.order_id }}</p> -->
           <p>
             {{
               data.pick_up_time == ""
@@ -115,7 +126,6 @@ export default {
           <p>{{ data.is_discount == 0 ? "" : "*員工價" }}</p>
           <div class="products">
             <div v-for="list in data.lists" :key="list.id">
-              <!-- <p>{{ list.id }}</p> -->
               <p>
                 {{ list.name + " " + list.quantity + "份 " }}
               </p>
@@ -138,9 +148,6 @@ export default {
 </template>
 
 <style scoped>
-.time-picker{
-  position: relative;
-}
 .body {
   width: 100%;
   height: 100vh;
@@ -205,7 +212,7 @@ export default {
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: flex-end;
   /* margin-bottom: -50px; */
 }
 
@@ -213,7 +220,6 @@ export default {
   position: relative;
   font-size: 50px;
   cursor: pointer;
-
 }
 
 .title {

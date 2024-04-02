@@ -14,24 +14,13 @@ export default {
       () => currentOrder.value,
       () => {
         quantity.value = currentOrder.value.quantity ? currentOrder.value.quantity : 1;
-        // console.log(currentOrder.value);
       }
     );
-
-    // watch(
-    //   () => isEditingOrder.value,
-    //   (newVal) => {
-    //     if (newVal) {
-          
-    //     }
-    //   }
-    // );
 
     const close = () => {
       showAlert.value = false;
       if (isEditingOrder.value) {
         isEditingOrder.value = false;
-        // console.log(lists.value);
       }
     };
 

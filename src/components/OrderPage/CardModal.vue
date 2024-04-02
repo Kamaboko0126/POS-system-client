@@ -27,7 +27,6 @@ export default {
     const selectItem = (id, name, price, marker) => {
       showAlert.value = true;
       const markers = marker ? JSON.parse(marker) : [];
-      // console.log(markers);
       currentOrder.value = { id, name, price, markers };
     };
 

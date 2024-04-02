@@ -1,5 +1,5 @@
 <script>
-import { ref, onMounted, onUnmounted, provide } from "vue";
+import { ref, onMounted, onUnmounted, provide, inject } from "vue";
 import axios from "axios";
 import HistoryItem from "./HistoryItem.vue";
 
@@ -9,6 +9,8 @@ export default {
     HistoryItem,
   },
   setup() {
+    const backendUrl = inject("backendUrl");
+
     const socket = ref(null);
     const message = ref("");
     const arrayOrder = ref([]);
@@ -32,10 +34,8 @@ export default {
         if (message.value === "Order Status Changed") {
           console.log("Order Status Changed");
           getOrderData();
-          // getHistoryOrder();
         }
       });
-      // getHistoryOrder();
     });
 
     onUnmounted(() => {
@@ -45,18 +45,21 @@ export default {
     });
 
     const getOrderData = async () => {
-      // console.log("get data");
-      const response = await axios.get(
-        `http://127.0.0.1:10000/orderlist/get/${today}`
-      );
-      console.log(response.data);
-      for (let i = 0; i < response.data.length; i++) {
-        response.data[i].lists = response.data[i].lists
-          ? JSON.parse(response.data[i].lists)
-          : [];
+      try {
+        const response = await axios.get(
+          backendUrl + `/orderlist/get/${today}`
+        );
+        console.log(response.data);
+        for (let i = 0; i < response.data.length; i++) {
+          response.data[i].lists = response.data[i].lists
+            ? JSON.parse(response.data[i].lists)
+            : [];
+        }
+        arrayOrder.value = response.data;
+        getHistoryOrder();
+      } catch (error) {
+        console.log(error);
       }
-      arrayOrder.value = response.data;
-      getHistoryOrder();
     };
 
     provide("getOrderData", getOrderData);
@@ -65,11 +68,9 @@ export default {
       console.log(id);
       try {
         const response = await axios.put(
-          `http://127.0.0.1:10000/orderlist/finish/${id}`
+          backendUrl + `/orderlist/finish/${id}`
         );
-        // console.log(response)
         if (response.data.message === "success") {
-          // console.log("success");
           getOrderData();
         }
       } catch (error) {
@@ -80,14 +81,13 @@ export default {
     const getHistoryOrder = async () => {
       try {
         const response = await axios.get(
-          `http://127.0.0.1:10000/orderlist/history/${today}`
+          backendUrl + `/orderlist/history/${today}`
         );
         console.log(response.data);
         historyList.value = response.data.map((item) => ({
           ...item,
           lists: JSON.parse(item.lists).map((listItem) => ({
             ...listItem,
-            // markers: JSON.parse(listItem.markers),
           })),
         }));
         console.log(historyList.value);
@@ -124,7 +124,6 @@ export default {
             >
           </div>
           <div class="infos">
-            <!-- <h3>{{ order.is_discount ? "員工價：是" : "員工價：否" }}</h3> -->
             <h3>{{ "取餐方式：" + order.ordering_method }}</h3>
             <h3>{{ "點餐時間：" + order.order_time }}</h3>
             <h3>
@@ -133,9 +132,6 @@ export default {
                 (order.pick_up_time == "" ? "立即" : order.pick_up_time)
               }}
             </h3>
-            <!-- <h3>{{ "付款狀態：" + order.payment }}</h3> -->
-            <!-- <h3>{{ order.phone == "09-XXXXXXXX" ? "" : order.phone }}</h3> -->
-            <!-- <h3>{{ order.is_finished ? "結單狀態：是" : "結單狀態：否" }}</h3> -->
           </div>
 
           <div class="products">
