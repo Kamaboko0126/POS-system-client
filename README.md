@@ -1,4 +1,4 @@
-# my-project
+# POS系統客戶端
 
 ## Project setup
 ```
