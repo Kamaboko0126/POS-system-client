@@ -1,4 +1,4 @@
-# POS系統客戶端
+# 美食棧POS系統客戶端
 
 ## Project setup
 ```
